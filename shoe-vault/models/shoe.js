@@ -2,11 +2,25 @@
 import mongoose from 'mongoose';
 
 const ShoeSchema = new mongoose.Schema({
+  shoeName: { type: String, required: true },
   brand: { type: String, required: true },
-  model: { type: String, required: true },
-  size: { type: Number, required: true },
-  price: { type: Number, required: true },
-  color: { type: String },
+  silhouette: { type: String },
+  styleID: { type: String, required: true, unique: true },
+  colorway: { type: String },
+  retailPrice: { type: Number },
+  thumbnail: { type: String },
+  releaseDate: { type: Date },
+  description: { type: String },
+  lowestResellPrice: {
+    stockX: { type: Number },
+    goat: { type: Number },
+    flightClub: { type: Number }
+  },
+  resellLinks: {
+    stockX: { type: String },
+    goat: { type: String },
+    flightClub: { type: String }
+  },
   createdAt: { type: Date, default: Date.now }
 });
 
