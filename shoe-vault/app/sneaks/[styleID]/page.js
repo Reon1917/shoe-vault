@@ -94,7 +94,7 @@ export default function SneakerDetail() {
           )}
           <button
             onClick={() => addToVault(sneaker)}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700"
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-transform duration-150"
           >
             Add to Vault
           </button>
