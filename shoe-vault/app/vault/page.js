@@ -1,30 +1,103 @@
 "use client";
-import { useState, useEffect } from 'react';
-import Navbar from '../../components/Navbar';
+import { useState, useEffect } from "react";
+import Navbar from "../../components/Navbar";
 
 export default function Vault() {
   const [vault, setVault] = useState([]);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [collections, setCollections] = useState([]);
+  const [selectedCollection, setSelectedCollection] = useState(null);
+  const [showCollectionModal, setShowCollectionModal] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState("");
   const [selectedShoe, setSelectedShoe] = useState(null);
 
   useEffect(() => {
-    const storedVault = JSON.parse(localStorage.getItem('vault')) || [];
+    const storedVault = JSON.parse(localStorage.getItem("vault")) || [];
+    const storedCollections = JSON.parse(localStorage.getItem("collections")) || [];
     setVault(storedVault);
+    setCollections(storedCollections);
   }, []);
 
-  const handleDelete = (styleID) => {
-    setSelectedShoe(styleID);
-    setShowConfirm(true);
+  const handleAddToCollection = (shoe) => {
+    setSelectedShoe(shoe);
+    setShowCollectionModal(true);
   };
 
-  const handleConfirm = (confirm) => {
-    if (confirm && selectedShoe !== null) {
-      const updatedVault = vault.filter(shoe => shoe.styleID !== selectedShoe);
-      setVault(updatedVault);
-      localStorage.setItem('vault', JSON.stringify(updatedVault));
+  const handleCollectionChange = (collectionName, isChecked) => {
+    const updatedCollections = [...collections];
+    const collection = updatedCollections.find((c) => c.name === collectionName);
+
+    if (isChecked && collection) {
+      collection.shoes.push(selectedShoe);
+    } else if (!isChecked && collection) {
+      collection.shoes = collection.shoes.filter((s) => s.styleID !== selectedShoe.styleID);
     }
-    setShowConfirm(false);
-    setSelectedShoe(null);
+
+    setCollections(updatedCollections);
+    localStorage.setItem("collections", JSON.stringify(updatedCollections));
+  };
+
+  const handleCreateNewCollection = () => {
+    if (!newCollectionName.trim()) return;
+
+    const newCollection = {
+      name: newCollectionName,
+      shoes: [selectedShoe],
+    };
+    const updatedCollections = [...collections, newCollection];
+
+    setCollections(updatedCollections);
+    localStorage.setItem("collections", JSON.stringify(updatedCollections));
+    setNewCollectionName("");
+    setShowCollectionModal(false);
+  };
+
+  const handleViewCollection = (collectionName) => {
+    const collection = collections.find((c) => c.name === collectionName);
+    setSelectedCollection(collection);
+  };
+
+  const handleDeleteFromCollection = (styleID) => {
+    const updatedCollections = collections.map((collection) => {
+      if (collection.name === selectedCollection.name) {
+        const updatedShoes = collection.shoes.filter((shoe) => shoe.styleID !== styleID);
+        return { ...collection, shoes: updatedShoes };
+      }
+      return collection;
+    });
+
+    setCollections(updatedCollections);
+    localStorage.setItem("collections", JSON.stringify(updatedCollections));
+
+    const updatedVault = vault.filter((shoe) => shoe.styleID !== styleID);
+    setVault(updatedVault);
+    localStorage.setItem("vault", JSON.stringify(updatedVault));
+
+    const updatedSelectedCollection = updatedCollections.find((c) => c.name === selectedCollection.name);
+    setSelectedCollection(updatedSelectedCollection);
+  };
+
+  const handleDeleteCollection = (collectionName) => {
+    const updatedCollections = collections.filter((collection) => collection.name !== collectionName);
+    setCollections(updatedCollections);
+    localStorage.setItem("collections", JSON.stringify(updatedCollections));
+
+    if (selectedCollection?.name === collectionName) {
+      setSelectedCollection(null);
+    }
+  };
+
+  const handleDeleteFromVault = (styleID) => {
+    const updatedVault = vault.filter((shoe) => shoe.styleID !== styleID);
+    setVault(updatedVault);
+    localStorage.setItem("vault", JSON.stringify(updatedVault));
+
+    const updatedCollections = collections.map((collection) => {
+      const updatedShoes = collection.shoes.filter((shoe) => shoe.styleID !== styleID);
+      return { ...collection, shoes: updatedShoes };
+    });
+
+    setCollections(updatedCollections);
+    localStorage.setItem("collections", JSON.stringify(updatedCollections));
   };
 
   return (
@@ -32,41 +105,147 @@ export default function Vault() {
       <Navbar />
       <div className="container mx-auto p-6 max-w-4xl dark:bg-gray-900 dark:text-white">
         <h1 className="text-4xl font-extrabold mb-6 text-center">My Vault</h1>
+
         {vault.length === 0 ? (
           <p className="text-center text-gray-500">No shoes in the vault yet.</p>
         ) : (
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {vault.map((shoe) => (
-              <li key={shoe.styleID} className="p-4 border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
-                <h2 className="text-2xl font-bold mb-2">{shoe.shoeName}</h2>
-                <p className="text-lg mb-2">{shoe.brand}</p>
-                <img className="w-full h-48 object-cover rounded-lg" src={shoe.thumbnail} alt={shoe.shoeName} />
-                <button 
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700"
-                  onClick={() => handleDelete(shoe.styleID)}
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-4">Shoes in Vault</h2>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {vault.map((shoe) => (
+                <li
+                  key={shoe.styleID}
+                  className="p-4 border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 transition hover:scale-105"
                 >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
+                  <h3 className="text-xl font-bold mb-2">{shoe.shoeName}</h3>
+                  <p className="text-md mb-2">{shoe.brand}</p>
+                  <img
+                    className="w-full h-48 object-cover rounded-lg"
+                    src={shoe.thumbnail}
+                    alt={shoe.shoeName}
+                  />
+                  <div className="mt-4 flex justify-between">
+                    <button
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+                      onClick={() => handleAddToCollection(shoe)}
+                    >
+                      Add to Collection
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
+                      onClick={() => handleDeleteFromVault(shoe.styleID)}
+                    >
+                      Delete from Vault
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
+
+        <div>
+          <h2 className="text-2xl font-bold mb-4">My Collections</h2>
+          {collections.length === 0 ? (
+            <p className="text-center text-gray-500">No collections yet.</p>
+          ) : (
+            <div className="mb-12">
+              <ul className="mb-6">
+                {collections.map((collection) => (
+                  <li key={collection.name} className="mb-2 flex items-center justify-between">
+                    <button
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+                      onClick={() => handleViewCollection(collection.name)}
+                    >
+                      {collection.name}
+                    </button>
+                    <button
+                      className="ml-2 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
+                      onClick={() => handleDeleteCollection(collection.name)}
+                    >
+                      Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              {selectedCollection && (
+                <div>
+                  <h3 className="text-xl font-bold mb-4">Collection: {selectedCollection.name}</h3>
+                  {selectedCollection.shoes.length === 0 ? (
+                    <p className="text-gray-500">No shoes in this collection.</p>
+                  ) : (
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {selectedCollection.shoes.map((shoe) => (
+                        <li
+                          key={shoe.styleID}
+                          className="p-4 border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 transition hover:scale-105"
+                        >
+                          <h3 className="text-xl font-bold mb-2">{shoe.shoeName}</h3>
+                          <p className="text-md mb-2">{shoe.brand}</p>
+                          <img
+                            className="w-full h-48 object-cover rounded-lg"
+                            src={shoe.thumbnail}
+                            alt={shoe.shoeName}
+                          />
+                          <button
+                            className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
+                            onClick={() => handleDeleteFromCollection(shoe.styleID)}
+                          >
+                            Delete from Collection
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-      {showConfirm && (
+
+      {showCollectionModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <p className="mb-4">Are you sure?</p>
-            <button 
-              className="mr-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700"
-              onClick={() => handleConfirm(true)}
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Add to Collection</h2>
+            <div className="mb-4">
+              {collections.length > 0 ? (
+                collections.map((collection) => (
+                  <div key={collection.name} className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      onChange={(e) => handleCollectionChange(collection.name, e.target.checked)}
+                      checked={collection.shoes.some((s) => s.styleID === selectedShoe.styleID)}
+                    />
+                    <label>{collection.name}</label>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">No collections available</p>
+              )}
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                className="border border-gray-300 p-2 w-full"
+                placeholder="New collection name"
+                value={newCollectionName}
+                onChange={(e) => setNewCollectionName(e.target.value)}
+              />
+              <button
+                className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 w-full transition-colors duration-300"
+                onClick={handleCreateNewCollection}
+              >
+                Create New Collection
+              </button>
+            </div>
+            <button
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 w-full transition-colors duration-300"
+              onClick={() => setShowCollectionModal(false)}
             >
-              Yes
-            </button>
-            <button 
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700"
-              onClick={() => handleConfirm(false)}
-            >
-              No
+              Close
             </button>
           </div>
         </div>
