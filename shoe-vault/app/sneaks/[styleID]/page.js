@@ -1,6 +1,13 @@
 "use client";
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { CircularProgress, Button, Card, CardMedia, CardContent, Typography, Grid, Accordion, AccordionSummary, AccordionDetails, IconButton, Box, Fab } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AddIcon from "@mui/icons-material/Add";
+import Navbar from '../../../components/Navbar';
+
+
 
 export default function SneakerDetail() {
   const [sneaker, setSneaker] = useState(null);
@@ -32,73 +39,125 @@ export default function SneakerDetail() {
   }, [styleID]);
 
   const addToVault = (shoe) => {
-    const storedVault = JSON.parse(localStorage.getItem('vault')) || [];
+    const storedVault = JSON.parse(localStorage.getItem("vault")) || [];
     storedVault.push(shoe);
-    localStorage.setItem('vault', JSON.stringify(storedVault));
+    localStorage.setItem("vault", JSON.stringify(storedVault));
   };
 
-  if (loading) return <p className="text-center text-gray-500">Loading...</p>;
-  if (error) return <p className="text-center text-red-500">Error: {error}</p>;
+  if (loading) return (
+    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+      <CircularProgress />
+    </Box>
+  );
+
+  if (error) return <Typography color="error" textAlign="center">Error: {error}</Typography>;
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl dark:bg-gray-900 dark:text-white">
-      <button onClick={() => router.back()} className="mb-4 text-blue-500 hover:text-blue-700">
-        ← Back to Search
-      </button>
-      <h1 className="text-4xl font-extrabold mb-4 text-center">{sneaker.shoeName}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-        <div className="flex flex-col items-center space-y-4">
-          <img className="w-full rounded-lg shadow-lg object-cover" src={sneaker.thumbnail} alt={sneaker.shoeName} />
-          <div className="text-lg text-gray-600 dark:text-gray-400">
-            <p><span className="font-semibold">Brand:</span> {sneaker.brand}</p>
-            <p><span className="font-semibold">Colorway:</span> {sneaker.colorway}</p>
-            <p><span className="font-semibold">Retail Price:</span> ${sneaker.retailPrice}</p>
-            <p><span className="font-semibold">Release Date:</span> {sneaker.releaseDate}</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          <p className="text-lg">{sneaker.description}</p>
-          {sneaker.lowestResellPrice && (
-            <>
-              <h2 className="text-2xl font-semibold mb-2">Lowest Resell Prices</h2>
-              <ul className="list-disc list-inside mb-4">
-                {Object.entries(sneaker.lowestResellPrice).map(([marketplace, price]) => (
-                  <li key={marketplace}>{marketplace}: ${price}</li>
-                ))}
-              </ul>
-            </>
-          )}
-          {sneaker.resellLinks && (
-            <>
-              <h2 className="text-2xl font-semibold mb-2">Resell Links</h2>
-              <ul className="list-disc list-inside mb-4">
-                {Object.entries(sneaker.resellLinks).map(([marketplace, link]) => (
-                  <li key={marketplace}>
-                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                      {marketplace}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-          {sneaker.imageLinks && sneaker.imageLinks.length > 0 && (
-            <>
-              <h2 className="text-2xl font-semibold mb-2">Images</h2>
-              <div className="grid grid-cols-2 gap-4">
-                {sneaker.imageLinks.map((image, index) => (
-                  <img key={index} className="w-full h-auto object-cover" src={image} alt={`${sneaker.shoeName} ${index + 1}`} />
-                ))}
-              </div>
-            </>
-          )}
-          <button
-            onClick={() => addToVault(sneaker)}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-transform duration-150"
-          >
-            Add to Vault
-          </button>
-        </div>
+    <div>
+      <Navbar />
+      <div className="container mx-auto p-6 max-w-4xl dark:bg-gray-900 dark:text-white">
+        <IconButton onClick={() => router.back()} color="primary" sx={{ mb: 2 }}>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h4" component="h1" textAlign="center" gutterBottom>
+          {sneaker.shoeName}
+        </Typography>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardMedia
+                component="img"
+                height="300"
+                image={sneaker.thumbnail}
+                alt={sneaker.shoeName}
+              />
+              <CardContent>
+                <Typography variant="h5">{sneaker.shoeName}</Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Brand:</strong> {sneaker.brand}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Silhouette:</strong> {sneaker.silhouette}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Colorway:</strong> {sneaker.colorway}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Retail Price:</strong> ${sneaker.retailPrice}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Release Date:</strong> {sneaker.releaseDate}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body1" paragraph>
+              {sneaker.description}
+            </Typography>
+            {sneaker.lowestResellPrice && (
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography>Lowest Resell Prices</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <ul>
+                    {Object.entries(sneaker.lowestResellPrice).map(([marketplace, price]) => (
+                      <li key={marketplace}>
+                        {marketplace}: ${price}
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionDetails>
+              </Accordion>
+            )}
+            {sneaker.resellLinks && (
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography>Resell Links</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <ul>
+                    {Object.entries(sneaker.resellLinks).map(([marketplace, link]) => (
+                      <li key={marketplace}>
+                        <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          {marketplace}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionDetails>
+              </Accordion>
+            )}
+            {sneaker.imageLinks && sneaker.imageLinks.length > 0 && (
+              <Box mt={4}>
+                <Typography variant="h6" gutterBottom>
+                  Images
+                </Typography>
+                <Grid container spacing={2}>
+                  {sneaker.imageLinks.map((image, index) => (
+                    <Grid item xs={6} md={4} key={index}>
+                      <img
+                        src={image}
+                        alt={`${sneaker.shoeName} image ${index + 1}`}
+                        className="rounded-lg shadow-md"
+                        style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
+          </Grid>
+        </Grid>
+        <Fab
+          color="primary"
+          aria-label="add"
+          onClick={() => addToVault(sneaker)}
+          sx={{ position: "fixed", bottom: 16, right: 16 }}
+        >
+          <AddIcon />
+        </Fab>
       </div>
     </div>
   );
