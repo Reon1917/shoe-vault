@@ -2,6 +2,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '../components/Navbar';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box'; // Import Box and CircularProgress for loading spinner
+
+
 
 export default function Home() {
   const [keyword, setKeyword] = useState('');
@@ -57,34 +63,74 @@ export default function Home() {
             Search
           </button>
         </form>
-        {loading && <p className="text-center text-gray-500">Loading...</p>}
+        
+        {loading ? (
+          // Show CircularProgress while loading
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {sneakers.map((sneaker) => (
+              <Paper
+                key={sneaker.styleID}
+                elevation={3}
+                sx={{
+                  padding: '20px',
+                  backgroundColor: 'white',
+                  '&:hover': {
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  },
+                }}
+              >
+                <h2 className="text-2xl font-bold mb-2">{sneaker.shoeName}</h2>
+                <p className="text-lg mb-2">{sneaker.brand}</p>
+                <img
+                  className="w-full h-48 object-cover rounded-lg"
+                  src={sneaker.thumbnail}
+                  alt={sneaker.shoeName}
+                />
+                <div className="flex justify-between mt-4">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleShoeClick(sneaker.styleID)}
+                    sx={{
+                      padding: { xs: '8px 16px', sm: '10px 20px' },
+                      fontSize: { xs: '14px', sm: '16px' },
+                      backgroundColor: 'blue',
+                      '&:hover': {
+                        backgroundColor: 'darkblue',
+                      },
+                    }}
+                  >
+                    View Details
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={() => addToVault(sneaker)}
+                    sx={{
+                      padding: { xs: '8px 16px', sm: '10px 20px' },
+                      fontSize: { xs: '14px', sm: '16px' },
+                      '&:hover': {
+                        backgroundColor: 'darkgreen',
+                      },
+                      transition: 'transform 0.2s',
+                      '&:active': {
+                        transform: 'scale(0.95)',
+                      },
+                    }}
+                  >
+                    Add to Vault
+                  </Button>
+                </div>
+              </Paper>
+            ))}
+          </ul>
+        )}
+
         {error && <p className="text-center text-red-500">Error: {error}</p>}
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {sneakers.map((sneaker) => (
-            <li
-              key={sneaker.styleID}
-              className="p-4 border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700"
-            >
-              <h2 className="text-2xl font-bold mb-2">{sneaker.shoeName}</h2>
-              <p className="text-lg mb-2">{sneaker.brand}</p>
-              <img className="w-full h-48 object-cover rounded-lg" src={sneaker.thumbnail} alt={sneaker.shoeName} />
-              <div className="flex justify-between mt-4">
-                <button
-                  onClick={() => handleShoeClick(sneaker.styleID)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
-                >
-                  View Details
-                </button>
-                <button
-            onClick={() => addToVault(sneaker)}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-transform duration-150"
-          >
-            Add to Vault
-          </button>
-              </div>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );
