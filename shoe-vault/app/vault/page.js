@@ -52,8 +52,12 @@ export default function Vault() {
   };
 
   const handleViewCollection = (collectionName) => {
-    const collection = collections.find((c) => c.name === collectionName);
-    setSelectedCollection(collection);
+    if (selectedCollection?.name === collectionName) {
+      setSelectedCollection(null);
+    } else {
+      const collection = collections.find((c) => c.name === collectionName);
+      setSelectedCollection(collection);
+    }
   };
 
   const handleDeleteFromCollection = (styleID) => {

@@ -7,12 +7,11 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import Navbar from '../../../components/Navbar';
 
-
-
 export default function SneakerDetail() {
   const [sneaker, setSneaker] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [vaultError, setVaultError] = useState(null); // State for vault error message
   const { styleID } = useParams();
   const router = useRouter();
 
@@ -40,8 +39,15 @@ export default function SneakerDetail() {
 
   const addToVault = (shoe) => {
     const storedVault = JSON.parse(localStorage.getItem("vault")) || [];
-    storedVault.push(shoe);
-    localStorage.setItem("vault", JSON.stringify(storedVault));
+    const isAlreadyInVault = storedVault.some(item => item.styleID === shoe.styleID);
+
+    if (isAlreadyInVault) {
+      setVaultError("It is already saved");
+    } else {
+      storedVault.push(shoe);
+      localStorage.setItem("vault", JSON.stringify(storedVault));
+      setVaultError(null); // Clear any previous error message
+    }
   };
 
   if (loading) return (
@@ -158,6 +164,7 @@ export default function SneakerDetail() {
         >
           <AddIcon />
         </Fab>
+        {vaultError && <Typography color="error" textAlign="center" sx={{ mt: 2 }}>{vaultError}</Typography>} {/* Display vault error message */}
       </div>
     </div>
   );

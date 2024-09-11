@@ -7,13 +7,12 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box'; // Import Box and CircularProgress for loading spinner
 
-
-
 export default function Home() {
   const [keyword, setKeyword] = useState('');
   const [sneakers, setSneakers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [vaultErrors, setVaultErrors] = useState({}); // State for vault error messages
   const router = useRouter();
 
   const handleSearch = async (e) => {
@@ -42,8 +41,15 @@ export default function Home() {
 
   const addToVault = (shoe) => {
     const storedVault = JSON.parse(localStorage.getItem('vault')) || [];
-    storedVault.push(shoe);
-    localStorage.setItem('vault', JSON.stringify(storedVault));
+    const isAlreadyInVault = storedVault.some(item => item.styleID === shoe.styleID);
+
+    if (isAlreadyInVault) {
+      setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: "It is already saved" }));
+    } else {
+      storedVault.push(shoe);
+      localStorage.setItem('vault', JSON.stringify(storedVault));
+      setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: null })); // Clear any previous error message
+    }
   };
 
   return (
@@ -125,6 +131,9 @@ export default function Home() {
                     Add to Vault
                   </Button>
                 </div>
+                {vaultErrors[sneaker.styleID] && (
+                  <p className="text-center text-red-500 mt-2">{vaultErrors[sneaker.styleID]}</p>
+                )} {/* Display vault error message */}
               </Paper>
             ))}
           </ul>
