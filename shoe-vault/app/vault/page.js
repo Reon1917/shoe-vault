@@ -105,6 +105,7 @@ export default function Vault() {
   };
 
   return (
+    
     <div>
       <Navbar />
       <div className="container mx-auto p-6 max-w-4xl dark:bg-gray-900 dark:text-white">
@@ -114,6 +115,14 @@ export default function Vault() {
           <p className="text-center text-gray-500">No shoes in the vault yet.</p>
         ) : (
           <div className="mb-12">
+          <button
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 transition-colors duration-300 mb-4"
+            onClick={() => setShowCollectionModal(true)}
+          >
+            Create New Collection
+            </button>
+
+
             <h2 className="text-2xl font-bold mb-4">Shoes in Vault</h2>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {vault.map((shoe) => (
