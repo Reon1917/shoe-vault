@@ -1,19 +1,23 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { Grid, Card, CardMedia, CardContent, CardActions, Button, Typography, Modal, TextField, Box } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import Navbar from "../../components/Navbar";
 
 export default function Collections() {
   const [collections, setCollections] = useState([]);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
-  const [selectedCollection, setSelectedCollection] = useState(null);
+  const router = useRouter();  // Initialize router
 
+  // Load collections from localStorage when the component mounts
   useEffect(() => {
     const storedCollections = JSON.parse(localStorage.getItem("collections")) || [];
     setCollections(storedCollections);
   }, []);
 
+  // Handle creating a new collection
   const handleCreateNewCollection = () => {
     if (!newCollectionName.trim()) return;
 
@@ -29,118 +33,133 @@ export default function Collections() {
     setShowCollectionModal(false);
   };
 
+  // Handle navigating to the collection view
   const handleViewCollection = (collectionName) => {
-    if (selectedCollection?.name === collectionName) {
-      setSelectedCollection(null);
-    } else {
-      const collection = collections.find((c) => c.name === collectionName);
-      setSelectedCollection(collection);
-    }
+    router.push(`/collections/${collectionName.toLowerCase()}`);  // Navigate to the dynamic collection page
   };
 
+  // Handle deleting a collection
   const handleDeleteCollection = (collectionName) => {
     const updatedCollections = collections.filter((collection) => collection.name !== collectionName);
     setCollections(updatedCollections);
     localStorage.setItem("collections", JSON.stringify(updatedCollections));
+  };
 
-    if (selectedCollection?.name === collectionName) {
-      setSelectedCollection(null);
-    }
+  // Modal style
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'white',  // Ensuring the modal has a white background
+    borderRadius: 4,  // Rounded corners
+    boxShadow: 24,
+    p: 4,  // Padding for content
   };
 
   return (
     <div>
       <Navbar />
-      <div className="container mx-auto p-6 max-w-4xl dark:bg-gray-900 dark:text-white">
-        <h1 className="text-4xl font-extrabold mb-6 text-center">My Collections</h1>
+      <div className="container mx-auto p-6 max-w-7xl">
+        <Typography variant="h4" align="center" gutterBottom>
+          My Collections
+        </Typography>
 
-        <button
-          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 transition-colors duration-300 mb-4"
+        <Button
+          variant="contained"
+          color="primary"
           onClick={() => setShowCollectionModal(true)}
+          sx={{ mb: 4 }}
         >
           Create New Collection
-        </button>
+        </Button>
 
         {collections.length === 0 ? (
-          <p className="text-center text-gray-500">No collections yet.</p>
+          <Typography variant="body1" align="center" color="textSecondary">
+            No collections yet.
+          </Typography>
         ) : (
-          <div className="mb-12">
-            <ul className="mb-6">
-              {collections.map((collection) => (
-                <li key={collection.name} className="mb-2 flex items-center justify-between">
-                  <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
-                    onClick={() => handleViewCollection(collection.name)}
-                  >
-                    {collection.name}
-                  </button>
-                  <button
-                    className="ml-2 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
-                    onClick={() => handleDeleteCollection(collection.name)}
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <Grid container spacing={4}>
+            {collections.map((collection) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={collection.name}>
+                <Card>
+                  {/* Display the first shoe in the collection as a preview */}
+                  {collection.shoes.length > 0 ? (
+                    <CardMedia
+                      component="img"
+                      height="150"
+                      image={collection.shoes[0].thumbnail}
+                      alt={collection.shoes[0].shoeName}
+                    />
+                  ) : (
+                    <CardMedia
+                      component="img"
+                      height="150"
+                      image="https://via.placeholder.com/150"  // Placeholder image if no shoes exist
+                      alt="No Shoes"
+                    />
+                  )}
 
-            {selectedCollection && (
-              <div>
-                <h3 className="text-xl font-bold mb-4">Collection: {selectedCollection.name}</h3>
-                {selectedCollection.shoes.length === 0 ? (
-                  <p className="text-gray-500">No shoes in this collection.</p>
-                ) : (
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {selectedCollection.shoes.map((shoe) => (
-                      <li
-                        key={shoe.styleID}
-                        className="p-4 border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 transition hover:scale-105"
-                      >
-                        <h3 className="text-xl font-bold mb-2">{shoe.shoeName}</h3>
-                        <p className="text-md mb-2">{shoe.brand}</p>
-                        <img
-                          className="w-full h-48 object-cover rounded-lg"
-                          src={shoe.thumbnail}
-                          alt={shoe.shoeName}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-          </div>
+                  <CardContent>
+                    <Typography variant="h6" component="div">
+                      {collection.name}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      {collection.shoes.length} shoes in this collection
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button size="small" color="primary" onClick={() => handleViewCollection(collection.name)}>
+                      View
+                    </Button>
+                    <Button size="small" color="secondary" onClick={() => handleDeleteCollection(collection.name)}>
+                      Delete
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         )}
       </div>
 
-      {showCollectionModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Create New Collection</h2>
-            <div className="mb-4">
-              <input
-                type="text"
-                className="border border-gray-300 p-2 w-full"
-                placeholder="New collection name"
-                value={newCollectionName}
-                onChange={(e) => setNewCollectionName(e.target.value)}
-              />
-              <button
-                className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 w-full transition-colors duration-300"
-                onClick={handleCreateNewCollection}
-              >
-                Create New Collection
-              </button>
-            </div>
-            <button
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 w-full transition-colors duration-300"
-              onClick={() => setShowCollectionModal(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <Modal
+        open={showCollectionModal}
+        onClose={() => setShowCollectionModal(false)}
+        aria-labelledby="create-collection-modal"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="create-collection-modal" variant="h6" component="h2" align="center">
+            Create New Collection
+          </Typography>
+          <TextField
+            fullWidth
+            label="New Collection Name"
+            variant="outlined"
+            margin="normal"
+            value={newCollectionName}
+            onChange={(e) => setNewCollectionName(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleCreateNewCollection}
+          >
+            Create
+          </Button>
+          <Button
+            variant="text"
+            color="secondary"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={() => setShowCollectionModal(false)}
+          >
+            Close
+          </Button>
+        </Box>
+      </Modal>
     </div>
   );
 }
