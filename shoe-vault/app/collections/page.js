@@ -1,8 +1,6 @@
-// app/collections/page.jsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
-//import ModalComponent from "../../components/ModalComponent";
 import Navbar from "../../components/Navbar";
 
 export default function Collections() {
@@ -10,7 +8,6 @@ export default function Collections() {
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
   const [selectedCollection, setSelectedCollection] = useState(null);
-  const [selectedShoe, setSelectedShoe] = useState(null);
 
   useEffect(() => {
     const storedCollections = JSON.parse(localStorage.getItem("collections")) || [];
@@ -117,12 +114,10 @@ export default function Collections() {
       </div>
 
       {showCollectionModal && (
-        <ModalComponent
-          open={showCollectionModal}
-          handleClose={() => setShowCollectionModal(false)}
-          title="Create New Collection"
-          description={
-            <div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Create New Collection</h2>
+            <div className="mb-4">
               <input
                 type="text"
                 className="border border-gray-300 p-2 w-full"
@@ -137,8 +132,14 @@ export default function Collections() {
                 Create New Collection
               </button>
             </div>
-          }
-        />
+            <button
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 w-full transition-colors duration-300"
+              onClick={() => setShowCollectionModal(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

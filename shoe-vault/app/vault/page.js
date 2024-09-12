@@ -40,17 +40,16 @@ export default function Vault() {
     if (!newCollectionName.trim()) return;
 
     const newCollection = {
-      name: newCollectionName,
-      shoes: [selectedShoe],
+        name: newCollectionName,
+        shoes: [selectedShoe],
     };
     const updatedCollections = [...collections, newCollection];
 
     setCollections(updatedCollections);
     localStorage.setItem("collections", JSON.stringify(updatedCollections));
     setNewCollectionName("");
-    setShowCollectionModal(false);
-  };
-
+    setShowCollectionModal(false); // Close the modal after creating the collection
+};
   const handleViewCollection = (collectionName) => {
     if (selectedCollection?.name === collectionName) {
       setSelectedCollection(null);
@@ -219,50 +218,33 @@ export default function Vault() {
       </div>
 
       {showCollectionModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Add to Collection</h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Create New Collection</h2>
             <div className="mb-4">
-              {collections.length > 0 ? (
-                collections.map((collection) => (
-                  <div key={collection.name} className="flex items-center mb-2">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      onChange={(e) => handleCollectionChange(collection.name, e.target.checked)}
-                      checked={collection.shoes.some((s) => s.styleID === selectedShoe.styleID)}
-                    />
-                    <label>{collection.name}</label>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500">No collections available</p>
-              )}
-            </div>
-            <div className="mb-4">
-              <input
-                type="text"
-                className="border border-gray-300 p-2 w-full"
-                placeholder="New collection name"
-                value={newCollectionName}
-                onChange={(e) => setNewCollectionName(e.target.value)}
-              />
-              <button
-                className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 w-full transition-colors duration-300"
-                onClick={handleCreateNewCollection}
-              >
-                Create New Collection
-              </button>
+                <input
+                    type="text"
+                    className="border border-gray-300 p-2 w-full"
+                    placeholder="New collection name"
+                    value={newCollectionName}
+                    onChange={(e) => setNewCollectionName(e.target.value)}
+                />
+                <button
+                    className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 w-full transition-colors duration-300"
+                    onClick={handleCreateNewCollection}
+                >
+                    Create New Collection
+                </button>
             </div>
             <button
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 w-full transition-colors duration-300"
-              onClick={() => setShowCollectionModal(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 w-full transition-colors duration-300"
+                onClick={() => setShowCollectionModal(false)}
             >
-              Close
+                Close
             </button>
-          </div>
         </div>
-      )}
+    </div>
+)}
     </div>
   );
 }
