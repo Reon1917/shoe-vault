@@ -13,17 +13,23 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Link from 'next/link';
+import { useTheme } from '../lib/ThemeContext';  // Import the theme context
+import Brightness4Icon from '@mui/icons-material/Brightness4';  // Icon for dark mode
+import Brightness7Icon from '@mui/icons-material/Brightness7';  // Icon for light mode
 
-const pages = ['Vault', 'Collections']; // Add "Collections" to the list of pages
+const pages = ['Vault', 'Collections']; // List of pages
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
+  const { theme, toggleTheme } = useTheme();  // Access the current theme and toggle function
+
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -37,7 +43,7 @@ function ResponsiveAppBar() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" color={theme === 'dark' ? 'default' : 'primary'}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
@@ -122,6 +128,7 @@ function ResponsiveAppBar() {
                 key={page}
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: 'white', display: 'block' }}
+                className={`hover:bg-gray-200 dark:text-black dark:hover:bg-gray-700 transition-colors duration-300`}
               >
                 <Link href={`/${page.toLowerCase()}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   {page}
@@ -129,6 +136,12 @@ function ResponsiveAppBar() {
               </Button>
             ))}
           </Box>
+
+          {/* Theme Toggle Button */}
+          <IconButton sx={{ ml: 1 }} onClick={toggleTheme} color="inherit">
+            {theme === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>

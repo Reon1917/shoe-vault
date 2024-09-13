@@ -104,7 +104,7 @@ export default function Home() {
                     sx={{
                       padding: { xs: '8px 16px', sm: '10px 20px' },
                       fontSize: { xs: '14px', sm: '16px' },
-                      backgroundColor: 'blue',
+                      backgroundColor: '#1976d2',
                       '&:hover': {
                         backgroundColor: 'darkblue',
                       },

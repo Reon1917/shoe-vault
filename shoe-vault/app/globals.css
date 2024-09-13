@@ -2,4 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-
+/* global styles */
+body {
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .light {
+    background-color: white;
+    color: black;
+  }
+  
+  .dark {
+    background-color: #121212;
+    color: white;
+  }
+  
+  /* Apply dark mode styling to Tailwind CSS elements */
+  .dark .bg-white {
+    background-color: #1a1a1a;
+  }
+  
+  .dark .text-black {
+    color: white;
+  }
+  
