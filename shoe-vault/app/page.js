@@ -1,19 +1,35 @@
+// app/page.js
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import Navbar from '../components/Navbar';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box'; // Import Box and CircularProgress for loading spinner
+import Box from '@mui/material/Box';
+import axios from 'axios';
 
 export default function Home() {
   const [keyword, setKeyword] = useState('');
   const [sneakers, setSneakers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [vaultErrors, setVaultErrors] = useState({}); // State for vault error messages
+  const [vault, setVault] = useState([]);
+  const [vaultErrors, setVaultErrors] = useState({});
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchVault = async () => {
+      try {
+        const response = await axios.get('/api/vault');
+        setVault(response.data);
+      } catch (err) {
+        console.error('Error fetching vault:', err);
+      }
+    };
+
+    fetchVault();
+  }, []);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -39,16 +55,27 @@ export default function Home() {
     router.push(`/sneaks/${styleID}`);
   };
 
-  const addToVault = (shoe) => {
-    const storedVault = JSON.parse(localStorage.getItem('vault')) || [];
-    const isAlreadyInVault = storedVault.some(item => item.styleID === shoe.styleID);
-
-    if (isAlreadyInVault) {
-      setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: "It is already saved" }));
-    } else {
-      storedVault.push(shoe);
-      localStorage.setItem('vault', JSON.stringify(storedVault));
-      setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: null })); // Clear any previous error message
+  const addToVault = async (shoe) => {
+    try {
+      const response = await fetch('/api/vault', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(shoe),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: null })); // Clear any previous error message
+        setVault(prevVault => [...prevVault, data]);
+      } else if (response.status === 409) {
+        setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: "It is already saved" }));
+      } else {
+        setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: "An error occurred" }));
+      }
+    } catch (err) {
+      setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: "An error occurred" }));
     }
   };
 
@@ -71,7 +98,6 @@ export default function Home() {
         </form>
         
         {loading ? (
-          // Show CircularProgress while loading
           <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
             <CircularProgress />
           </Box>
@@ -133,7 +159,7 @@ export default function Home() {
                 </div>
                 {vaultErrors[sneaker.styleID] && (
                   <p className="text-center text-red-500 mt-2">{vaultErrors[sneaker.styleID]}</p>
-                )} {/* Display vault error message */}
+                )}
               </Paper>
             ))}
           </ul>
