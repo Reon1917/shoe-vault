@@ -1,4 +1,3 @@
-// utils/dbConnect.js
 import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -17,6 +16,7 @@ if (!cached) {
 
 async function dbConnect() {
   if (cached.conn) {
+    console.log('Using cached connection');
     return cached.conn;
   }
 
@@ -24,14 +24,25 @@ async function dbConnect() {
     const opts = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useCreateIndex: true,
     };
 
+    console.log('Creating new MongoDB connection');
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log('New MongoDB connection created successfully');
       return mongoose;
     });
   }
-  cached.conn = await cached.promise;
+
+  try {
+    console.log('Waiting for MongoDB connection');
+    cached.conn = await cached.promise;
+    console.log('MongoDB connected successfully');
+  } catch (e) {
+    console.error('Error connecting to MongoDB:', e);
+    cached.promise = null;
+    throw e;
+  }
+
   return cached.conn;
 }
 

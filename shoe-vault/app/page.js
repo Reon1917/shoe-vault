@@ -57,28 +57,40 @@ export default function Home() {
 
   const addToVault = async (shoe) => {
     try {
+      const shoeData = {
+        styleID: shoe.styleID,
+        shoeName: shoe.shoeName,
+        brand: shoe.brand,
+        thumbnail: shoe.thumbnail,
+        // Use the MongoDB _id for referencing
+      };
+  
       const response = await fetch('/api/vault', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(shoe),
+        body: JSON.stringify(shoeData),
       });
   
+      const data = await response.json();
+  
       if (response.ok) {
-        const data = await response.json();
-        setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: null })); // Clear any previous error message
-        setVault(prevVault => [...prevVault, data]);
+        setVaultErrors((prevErrors) => ({ ...prevErrors, [shoe.styleID]: null }));
+        setVault((prevVault) => [...prevVault, data]);
       } else if (response.status === 409) {
-        setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: "It is already saved" }));
+        setVaultErrors((prevErrors) => ({ ...prevErrors, [shoe.styleID]: "Shoe is already saved" }));
       } else {
-        setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: "An error occurred" }));
+        console.error('Server error:', data.error);
+        setVaultErrors((prevErrors) => ({ ...prevErrors, [shoe.styleID]: `Error: ${data.error}` }));
       }
     } catch (err) {
-      setVaultErrors(prevErrors => ({ ...prevErrors, [shoe.styleID]: "An error occurred" }));
+      console.error('Client-side error:', err);
+      setVaultErrors((prevErrors) => ({ ...prevErrors, [shoe.styleID]: `An error occurred: ${err.message}` }));
     }
   };
-
+  
+  
   return (
     <div>
       <Navbar />
