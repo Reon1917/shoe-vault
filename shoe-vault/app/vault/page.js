@@ -9,7 +9,9 @@ export default function Vault() {
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const [selectedShoe, setSelectedShoe] = useState(null);
+  const [isChecked, setIsChecked] = useState({}); // Track checkbox states per collection and shoe
 
+  // Fetch vault data from MongoDB
   useEffect(() => {
     const fetchVault = async () => {
       try {
@@ -24,43 +26,38 @@ export default function Vault() {
         console.error('Error fetching vault:', err);
       }
     };
-
     fetchVault();
+  }, []);
+
+  // Load collections from localStorage
+  useEffect(() => {
+    const storedCollections = JSON.parse(localStorage.getItem("collections")) || [];
+    setCollections(storedCollections);
   }, []);
 
   const handleAddToCollection = (shoe) => {
     setSelectedShoe(shoe);
+
+    const currentState = collections.reduce((state, collection) => {
+      state[collection.name] = collection.shoes.some((s) => s.id === shoe.id);
+      return state;
+    }, {});
+    
+    // Track the checkbox state for each collection and shoe combination
+    setIsChecked(currentState);
     setShowCollectionModal(true);
   };
 
-  const handleCollectionChange = (collectionName, isChecked) => {
-    const updatedCollections = [...collections];
-    const collection = updatedCollections.find((c) => c.name === collectionName);
-
-    if (isChecked && collection) {
-      collection.shoes.push(selectedShoe);
-    } else if (!isChecked && collection) {
-      collection.shoes = collection.shoes.filter((s) => s.id !== selectedShoe.id);
-    }
-
-    setCollections(updatedCollections);
-    localStorage.setItem("collections", JSON.stringify(updatedCollections));
-  };
-
-  const handleViewCollection = (collectionName) => {
-    if (selectedCollection?.name === collectionName) {
-      setSelectedCollection(null);
-    } else {
-      const collection = collections.find((c) => c.name === collectionName);
-      setSelectedCollection(collection);
-    }
-  };
-
-  const handleDeleteFromCollection = (id) => {
+  const handleCollectionChange = (collectionName, shoeId, checked) => {
     const updatedCollections = collections.map((collection) => {
-      if (collection.name === selectedCollection.name) {
-        const updatedShoes = collection.shoes.filter((shoe) => shoe.id !== id);
-        return { ...collection, shoes: updatedShoes };
+      if (collection.name === collectionName) {
+        if (checked) {
+          // Add shoe to collection
+          return { ...collection, shoes: [...collection.shoes, selectedShoe] };
+        } else {
+          // Remove shoe from collection
+          return { ...collection, shoes: collection.shoes.filter((shoe) => shoe.id !== shoeId) };
+        }
       }
       return collection;
     });
@@ -68,22 +65,11 @@ export default function Vault() {
     setCollections(updatedCollections);
     localStorage.setItem("collections", JSON.stringify(updatedCollections));
 
-    const updatedVault = vault.filter((shoe) => shoe.id !== id);
-    setVault(updatedVault);
-    localStorage.setItem("vault", JSON.stringify(updatedVault));
-
-    const updatedSelectedCollection = updatedCollections.find((c) => c.name === selectedCollection.name);
-    setSelectedCollection(updatedSelectedCollection);
-  };
-
-  const handleDeleteCollection = (collectionName) => {
-    const updatedCollections = collections.filter((collection) => collection.name !== collectionName);
-    setCollections(updatedCollections);
-    localStorage.setItem("collections", JSON.stringify(updatedCollections));
-
-    if (selectedCollection?.name === collectionName) {
-      setSelectedCollection(null);
-    }
+    // Update the checkbox state for this particular shoe and collection
+    setIsChecked((prevState) => ({
+      ...prevState,
+      [`${collectionName}-${shoeId}`]: checked,
+    }));
   };
 
   const handleDeleteFromVault = async (id) => {
@@ -97,8 +83,17 @@ export default function Vault() {
       });
 
       if (response.ok) {
-        const updatedVault = vault.filter((shoe) => shoe.id !== id);
+        // Optimistically update the vault state
+        const updatedVault = vault.filter((shoe) => shoe._id !== id);
         setVault(updatedVault);
+
+        // Update collections to remove the deleted shoe
+        const updatedCollections = collections.map((collection) => ({
+          ...collection,
+          shoes: collection.shoes.filter((shoe) => shoe._id !== id),
+        }));
+        setCollections(updatedCollections);
+        localStorage.setItem("collections", JSON.stringify(updatedCollections));
       } else {
         console.error('Error deleting shoe from vault:', response.statusText);
       }
@@ -121,7 +116,7 @@ export default function Vault() {
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {vault.map((shoe) => (
                 <li
-                  key={shoe.id}
+                  key={shoe._id}
                   className="p-4 border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 transition hover:scale-105"
                 >
                   <h3 className="text-xl font-bold mb-2">{shoe.shoeName}</h3>
@@ -140,7 +135,7 @@ export default function Vault() {
                     </button>
                     <button
                       className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
-                      onClick={() => handleDeleteFromVault(shoe.id)}
+                      onClick={() => handleDeleteFromVault(shoe._id)}
                     >
                       Delete from Vault
                     </button>
@@ -163,8 +158,10 @@ export default function Vault() {
                     <input
                       type="checkbox"
                       className="mr-2"
-                      checked={selectedShoe ? collection.shoes.some((shoe) => shoe.id === selectedShoe.id) : false}
-                      onChange={(e) => handleCollectionChange(collection.name, e.target.checked)}
+                      checked={isChecked[`${collection.name}-${selectedShoe.id}`] || false}
+                      onChange={(e) =>
+                        handleCollectionChange(collection.name, selectedShoe.id, e.target.checked)
+                      }
                     />
                     {collection.name}
                   </label>
