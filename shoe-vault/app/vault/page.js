@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
-import { v4 as uuidv4 } from 'uuid';
 
 export default function Vault() {
   const [vault, setVault] = useState([]);
@@ -35,15 +34,25 @@ export default function Vault() {
     setCollections(storedCollections);
   }, []);
 
+  // Initialize checkbox states
+  useEffect(() => {
+    const initialState = {};
+    collections.forEach((collection) => {
+      collection.shoes.forEach((shoe) => {
+        initialState[`${collection.name}-${shoe.id}`] = true;
+      });
+    });
+    setIsChecked(initialState);
+  }, [collections]);
+
   const handleAddToCollection = (shoe) => {
     setSelectedShoe(shoe);
 
     const currentState = collections.reduce((state, collection) => {
-      state[collection.name] = collection.shoes.some((s) => s.id === shoe.id);
+      state[`${collection.name}-${shoe.id}`] = collection.shoes.some((s) => s.id === shoe.id);
       return state;
     }, {});
-    
-    // Track the checkbox state for each collection and shoe combination
+
     setIsChecked(currentState);
     setShowCollectionModal(true);
   };
@@ -52,10 +61,8 @@ export default function Vault() {
     const updatedCollections = collections.map((collection) => {
       if (collection.name === collectionName) {
         if (checked) {
-          // Add shoe to collection
           return { ...collection, shoes: [...collection.shoes, selectedShoe] };
         } else {
-          // Remove shoe from collection
           return { ...collection, shoes: collection.shoes.filter((shoe) => shoe.id !== shoeId) };
         }
       }
@@ -65,7 +72,7 @@ export default function Vault() {
     setCollections(updatedCollections);
     localStorage.setItem("collections", JSON.stringify(updatedCollections));
 
-    // Update the checkbox state for this particular shoe and collection
+    // Update the checkbox state for this particular shoe and collection using prevState
     setIsChecked((prevState) => ({
       ...prevState,
       [`${collectionName}-${shoeId}`]: checked,

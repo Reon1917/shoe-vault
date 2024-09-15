@@ -67,61 +67,61 @@ export default function Collections() {
         </Typography>
 
         <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setShowCollectionModal(true)}
-          sx={{ mb: 4 }}
-        >
-          Create New Collection
-        </Button>
+  variant="contained"
+  color="primary"
+  onClick={() => setShowCollectionModal(true)}
+  sx={{ mb: 4 }}
+>
+  Create New Collection
+</Button>
 
-        {collections.length === 0 ? (
-          <Typography variant="body1" align="center" color="textSecondary">
-            No collections yet.
-          </Typography>
-        ) : (
-          <Grid container spacing={4}>
-            {collections.map((collection) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={collection.name}>
-                <Card>
-                  {/* Display the first shoe in the collection as a preview */}
-                  {collection.shoes.length > 0 ? (
-                    <CardMedia
-                      component="img"
-                      height="150"
-                      image={collection.shoes[0].thumbnail}
-                      alt={collection.shoes[0].shoeName}
-                    />
-                  ) : (
-                    <CardMedia
-                      component="img"
-                      height="150"
-                      image="https://via.placeholder.com/150"  // Placeholder image if no shoes exist
-                      alt="No Shoes"
-                    />
-                  )}
+{collections.length === 0 ? (
+  <Typography variant="body1" align="center" color="textSecondary">
+    No collections yet.
+  </Typography>
+) : (
+  <Grid container spacing={4}>
+    {collections.map((collection) => (
+      <Grid item xs={12} sm={6} md={4} lg={3} key={collection.name}>
+        <Card>
+          {/* Display the first shoe in the collection as a preview */}
+          {Array.isArray(collection.shoes) && collection.shoes.length > 0 ? (
+            <CardMedia
+              component="img"
+              height="150"
+              image={collection.shoes[0].thumbnail}
+              alt={collection.shoes[0].shoeName}
+            />
+          ) : (
+            <CardMedia
+              component="img"
+              height="150"
+              image="https://via.placeholder.com/150"  // Placeholder image if no shoes exist
+              alt="No Shoes"
+            />
+          )}
 
-                  <CardContent>
-                    <Typography variant="h6" component="div">
-                      {collection.name}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {collection.shoes.length} shoes in this collection
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" color="primary" onClick={() => handleViewCollection(collection.name)}>
-                      View
-                    </Button>
-                    <Button size="small" color="secondary" onClick={() => handleDeleteCollection(collection.name)}>
-                      Delete
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
+          <CardContent>
+            <Typography variant="h6" component="div">
+              {collection.name}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              {Array.isArray(collection.shoes) ? collection.shoes.length : 0} shoes in this collection
+            </Typography>
+          </CardContent>
+          <CardActions>
+            <Button size="small" color="primary" onClick={() => handleViewCollection(collection.name)}>
+              View
+            </Button>
+            <Button size="small" color="secondary" onClick={() => handleDeleteCollection(collection.name)}>
+              Delete
+            </Button>
+          </CardActions>
+        </Card>
+      </Grid>
+    ))}
+  </Grid>
+)}
       </div>
 
       <Modal
