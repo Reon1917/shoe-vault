@@ -11,30 +11,21 @@ export default function Vault() {
   const [selectedShoe, setSelectedShoe] = useState(null);
 
   useEffect(() => {
-    const storedVault = JSON.parse(localStorage.getItem("vault")) || [];
-    const storedCollections = JSON.parse(localStorage.getItem("collections")) || [];
-  
-    // Ensure each shoe in the vault has a unique id
-    const updatedVault = storedVault.map(shoe => ({
-      ...shoe,
-      id: shoe?.id || uuidv4(),
-    }));
-  
-    // Ensure each shoe in the collections has a unique id
-    const updatedCollections = storedCollections.map(collection => ({
-      ...collection,
-      shoes: collection.shoes.map(shoe => ({
-        ...shoe,
-        id: shoe?.id || uuidv4(),
-      })),
-    }));
-  
-    setVault(updatedVault);
-    setCollections(updatedCollections);
-  
-    // Update local storage with the new ids
-    localStorage.setItem("vault", JSON.stringify(updatedVault));
-    localStorage.setItem("collections", JSON.stringify(updatedCollections));
+    const fetchVault = async () => {
+      try {
+        const response = await fetch('/api/vault');
+        if (response.ok) {
+          const data = await response.json();
+          setVault(data);
+        } else {
+          console.error('Error fetching vault:', response.statusText);
+        }
+      } catch (err) {
+        console.error('Error fetching vault:', err);
+      }
+    };
+
+    fetchVault();
   }, []);
 
   const handleAddToCollection = (shoe) => {
@@ -95,18 +86,25 @@ export default function Vault() {
     }
   };
 
-  const handleDeleteFromVault = (id) => {
-    const updatedVault = vault.filter((shoe) => shoe.id !== id);
-    setVault(updatedVault);
-    localStorage.setItem("vault", JSON.stringify(updatedVault));
+  const handleDeleteFromVault = async (id) => {
+    try {
+      const response = await fetch('/api/vault', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
 
-    const updatedCollections = collections.map((collection) => {
-      const updatedShoes = collection.shoes.filter((shoe) => shoe.id !== id);
-      return { ...collection, shoes: updatedShoes };
-    });
-
-    setCollections(updatedCollections);
-    localStorage.setItem("collections", JSON.stringify(updatedCollections));
+      if (response.ok) {
+        const updatedVault = vault.filter((shoe) => shoe.id !== id);
+        setVault(updatedVault);
+      } else {
+        console.error('Error deleting shoe from vault:', response.statusText);
+      }
+    } catch (err) {
+      console.error('Error deleting shoe from vault:', err);
+    }
   };
 
   return (
