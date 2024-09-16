@@ -35,27 +35,39 @@ export default function Vault() {
   }, []);
 
   // Initialize checkbox states
-  useEffect(() => {
-    const initialState = {};
-    collections.forEach((collection) => {
+  // Initialize checkbox states when collections are loaded
+useEffect(() => {
+  const initialState = {};
+
+  collections.forEach((collection) => {
+    if (collection.shoes && Array.isArray(collection.shoes)) {
       collection.shoes.forEach((shoe) => {
+        // Set the checkbox state to true only if the shoe is part of this collection
         initialState[`${collection.name}-${shoe.id}`] = true;
       });
-    });
-    setIsChecked(initialState);
-  }, [collections]);
+    }
+  });
 
-  const handleAddToCollection = (shoe) => {
-    setSelectedShoe(shoe);
+  setIsChecked(initialState);
+}, [collections]);
 
-    const currentState = collections.reduce((state, collection) => {
-      state[`${collection.name}-${shoe.id}`] = collection.shoes.some((s) => s.id === shoe.id);
-      return state;
-    }, {});
 
-    setIsChecked(currentState);
-    setShowCollectionModal(true);
-  };
+const handleAddToCollection = (shoe) => {
+  setSelectedShoe(shoe);
+
+  // Create a new state for checkboxes based on whether the shoe exists in each collection
+  const currentState = collections.reduce((state, collection) => {
+    // Check if the shoe exists in this particular collection
+    const isInCollection = collection.shoes.some((s) => s.id === shoe.id);
+    state[`${collection.name}-${shoe.id}`] = isInCollection;
+    return state;
+  }, {});
+
+  // Update the checkbox states
+  setIsChecked(currentState);
+  setShowCollectionModal(true);
+};
+
 
   const handleCollectionChange = (collectionName, shoeId, checked) => {
     const updatedCollections = collections.map((collection) => {
@@ -86,7 +98,7 @@ export default function Vault() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id }),  // Ensure you're sending the correct id
       });
 
       if (response.ok) {
@@ -108,6 +120,7 @@ export default function Vault() {
       console.error('Error deleting shoe from vault:', err);
     }
   };
+
 
   return (
     <div>

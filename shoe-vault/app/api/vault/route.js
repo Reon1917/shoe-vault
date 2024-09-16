@@ -1,6 +1,7 @@
 // app/api/vault/route.js
 import dbConnect from '../../../lib/dbConnect';
 import Shoe from '../../../models/shoe';
+import { ObjectId } from 'mongodb';
 
 export async function POST(req) {
   await dbConnect();
@@ -51,16 +52,24 @@ export async function DELETE(req) {
   try {
     const { id } = await req.json();
     console.log('Received DELETE request:', { id });
-    await Shoe.deleteOne({ id });
+
+    if (!ObjectId.isValid(id)) {
+      return new Response(JSON.stringify({ error: 'Invalid shoe ID' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    await Shoe.deleteOne({ _id: new ObjectId(id) });  // Ensure you're deleting based on `_id`
     return new Response(JSON.stringify({ message: 'Shoe deleted' }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },  // Ensure JSON content type
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
     console.error('Error in DELETE /api/vault:', err);
     return new Response(JSON.stringify({ error: 'Server error', details: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },  // Ensure JSON content type
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 }
