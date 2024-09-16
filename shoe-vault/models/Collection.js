@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const collectionSchema = new mongoose.Schema({
   name: {
@@ -8,7 +8,9 @@ const collectionSchema = new mongoose.Schema({
   },
   shoes: [
     {
+      styleID: String,
       shoeName: String,
+      brand: String,
       thumbnail: String,
     },
   ],
@@ -16,8 +18,7 @@ const collectionSchema = new mongoose.Schema({
   timestamps: true,  // Automatically manage createdAt and updatedAt fields
 });
 
-// Create a Mongoose model using the schema
-const Collection = mongoose.model('Collection', collectionSchema);
+// Check if the model already exists before defining it
+const Collection = mongoose.models.Collection || mongoose.model('Collection', collectionSchema);
 
-// Export the model
-module.exports = Collection;
+export default Collection;

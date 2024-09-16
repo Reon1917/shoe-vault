@@ -1,104 +1,112 @@
 "use client";
 import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
-import { v4 as uuidv4 } from 'uuid';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 
 export default function Vault() {
   const [vault, setVault] = useState([]);
   const [collections, setCollections] = useState([]);
-  const [selectedCollection, setSelectedCollection] = useState(null);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const [selectedShoe, setSelectedShoe] = useState(null);
-  const [isChecked, setIsChecked] = useState({}); // Track checkbox states per collection and shoe
+  const [isAlreadyAdded, setIsAlreadyAdded] = useState(false);
 
-  // Fetch vault data from MongoDB
+  // Fetch Vault data
   useEffect(() => {
     const fetchVault = async () => {
       try {
         const response = await fetch('/api/vault');
-        if (response.ok) {
-          const data = await response.json();
-          setVault(data);
-        } else {
-          console.error('Error fetching vault:', response.statusText);
-        }
-      } catch (err) {
-        console.error('Error fetching vault:', err);
+        if (!response.ok) throw new Error(response.statusText);
+        const data = await response.json();
+        setVault(data);
+      } catch (error) {
+        console.error('Error fetching vault:', error.message);
       }
     };
     fetchVault();
   }, []);
 
-  // Load collections from localStorage
-  useEffect(() => {
-    const storedCollections = JSON.parse(localStorage.getItem("collections")) || [];
-    setCollections(storedCollections);
-  }, []);
+  // Fetch Collections when opening modal
+  const fetchCollections = async () => {
+    try {
+      const response = await fetch('/api/collections');
+      if (!response.ok) throw new Error(response.statusText);
+      const data = await response.json();
+      setCollections(data);
+    } catch (error) {
+      console.error('Error fetching collections:', error.message);
+    }
+  };
 
-  const handleAddToCollection = (shoe) => {
+  // Handle opening the Add to Collection modal
+  const openCollectionModal = (shoe) => {
     setSelectedShoe(shoe);
-
-    const currentState = collections.reduce((state, collection) => {
-      state[collection.name] = collection.shoes.some((s) => s.id === shoe.id);
-      return state;
-    }, {});
-    
-    // Track the checkbox state for each collection and shoe combination
-    setIsChecked(currentState);
+    setIsAlreadyAdded(false); // Reset the error message state
+    fetchCollections();
     setShowCollectionModal(true);
   };
 
-  const handleCollectionChange = (collectionName, shoeId, checked) => {
-    const updatedCollections = collections.map((collection) => {
-      if (collection.name === collectionName) {
-        if (checked) {
-          // Add shoe to collection
-          return { ...collection, shoes: [...collection.shoes, selectedShoe] };
-        } else {
-          // Remove shoe from collection
-          return { ...collection, shoes: collection.shoes.filter((shoe) => shoe.id !== shoeId) };
-        }
+  // Add Shoe to Collection
+  const addToCollection = async (collectionName, styleID) => {
+    try {
+      const response = await fetch(`/api/collections/${collectionName}/addShoe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ styleID }),
+      });
+
+      if (!response.ok) {
+        const { message } = await response.json();
+        if (message === 'Shoe already in collection') setIsAlreadyAdded(true);
+        throw new Error(response.statusText);
       }
-      return collection;
-    });
 
-    setCollections(updatedCollections);
-    localStorage.setItem("collections", JSON.stringify(updatedCollections));
-
-    // Update the checkbox state for this particular shoe and collection
-    setIsChecked((prevState) => ({
-      ...prevState,
-      [`${collectionName}-${shoeId}`]: checked,
-    }));
+      console.log('Shoe added to collection');
+      fetchCollections();
+    } catch (error) {
+      console.error('Error adding shoe to collection:', error.message);
+    }
   };
 
+  // Remove Shoe from Collection
+  const removeFromCollection = async (collectionName, styleID) => {
+    try {
+      const response = await fetch(`/api/collections/${collectionName}/addShoe`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ styleID }),
+      });
+
+      if (!response.ok) throw new Error(response.statusText);
+
+      console.log('Shoe removed from collection');
+      fetchCollections();
+    } catch (error) {
+      console.error('Error removing shoe from collection:', error.message);
+    }
+  };
+
+  // Delete Shoe from Vault
   const handleDeleteFromVault = async (id) => {
     try {
       const response = await fetch('/api/vault', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
       });
 
-      if (response.ok) {
-        // Optimistically update the vault state
-        const updatedVault = vault.filter((shoe) => shoe._id !== id);
-        setVault(updatedVault);
+      if (!response.ok) throw new Error(response.statusText);
 
-        // Update collections to remove the deleted shoe
-        const updatedCollections = collections.map((collection) => ({
+      setVault(vault.filter((shoe) => shoe._id !== id));
+      setCollections((prevCollections) =>
+        prevCollections.map((collection) => ({
           ...collection,
           shoes: collection.shoes.filter((shoe) => shoe._id !== id),
-        }));
-        setCollections(updatedCollections);
-        localStorage.setItem("collections", JSON.stringify(updatedCollections));
-      } else {
-        console.error('Error deleting shoe from vault:', response.statusText);
-      }
-    } catch (err) {
-      console.error('Error deleting shoe from vault:', err);
+        }))
+      );
+      console.log('Shoe deleted from vault and updated collections');
+    } catch (error) {
+      console.error('Error deleting shoe from vault:', error.message);
     }
   };
 
@@ -129,7 +137,7 @@ export default function Vault() {
                   <div className="mt-4 flex justify-between">
                     <button
                       className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
-                      onClick={() => handleAddToCollection(shoe)}
+                      onClick={() => openCollectionModal(shoe)}
                     >
                       Add to Collection
                     </button>
@@ -151,25 +159,42 @@ export default function Vault() {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-xl font-bold mb-4">Add to Collection</h2>
+            {isAlreadyAdded && (
+              <p className="text-red-500 mb-4">The shoe is already added</p>
+            )}
             <div className="mb-4">
-              {collections.map((collection) => (
-                <div key={collection.name} className="mb-2">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={isChecked[`${collection.name}-${selectedShoe.id}`] || false}
-                      onChange={(e) =>
-                        handleCollectionChange(collection.name, selectedShoe.id, e.target.checked)
+              {collections.map((collection) => {
+                const isShoeInCollection = collection.shoes.some(
+                  (shoe) => shoe.styleID === selectedShoe.styleID
+                );
+
+                return (
+                  <div key={collection._id} className="mb-2 flex justify-between items-center">
+                    <button
+                      className={`cursor-pointer p-2 rounded-full transition-transform duration-300 ${
+                        isShoeInCollection ? 'bg-green-500' : 'bg-gray-300'
+                      }`}
+                      onClick={() =>
+                        isShoeInCollection
+                          ? setIsAlreadyAdded(true)
+                          : addToCollection(collection.name, selectedShoe.styleID)
                       }
-                    />
-                    {collection.name}
-                  </label>
-                </div>
-              ))}
+                    >
+                      <LibraryAddIcon />
+                    </button>
+                    <span>{collection.name}</span>
+                    <button
+                      className="cursor-pointer p-2 rounded-full transition-transform duration-300 bg-gray-300 hover:bg-red-500"
+                      onClick={() => removeFromCollection(collection.name, selectedShoe.styleID)}
+                    >
+                      <DeleteOutlineIcon />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
             <button
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 w-full transition-colors duration-300"
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 w-full transition-colors duration-300 mt-2"
               onClick={() => setShowCollectionModal(false)}
             >
               Close
