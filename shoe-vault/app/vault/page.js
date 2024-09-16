@@ -41,6 +41,7 @@ export default function Vault() {
   // Handle opening the Add to Collection modal
   const openCollectionModal = (shoe) => {
     setSelectedShoe(shoe);
+    setIsAlreadyAdded(false); // Reset the error message state
     fetchCollections();
     setShowCollectionModal(true);
   };
