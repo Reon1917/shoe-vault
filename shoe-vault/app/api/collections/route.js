@@ -1,6 +1,5 @@
 import dbConnect from '@/lib/dbConnect';
 import Collection from '@/models/Collection';
-import Shoe from '@/models/shoe';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
