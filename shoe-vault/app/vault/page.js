@@ -8,8 +8,16 @@ export default function Vault() {
   const [vault, setVault] = useState([]);
   const [collections, setCollections] = useState([]);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false); // State for showing the form
   const [selectedShoe, setSelectedShoe] = useState(null);
   const [isAlreadyAdded, setIsAlreadyAdded] = useState(false);
+  
+  // State for new shoe form
+  const [newShoe, setNewShoe] = useState({
+    brand: '',
+    model: '',
+    picture: ''
+  });
 
   // Fetch Vault data
   useEffect(() => {
@@ -110,11 +118,106 @@ export default function Vault() {
     }
   };
 
+  // Handle form input change
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewShoe((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/vault', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newShoe),
+      });
+
+      if (!response.ok) throw new Error(response.statusText);
+
+      const data = await response.json();
+      setVault((prevVault) => [...prevVault, data]);
+      setShowCreateForm(false);
+      console.log('New shoe added to vault');
+    } catch (error) {
+      console.error('Error adding new shoe to vault:', error.message);
+    }
+  };
+
   return (
     <div>
       <Navbar />
       <div className="container mx-auto p-6 max-w-4xl dark:bg-gray-900 dark:text-white">
         <h1 className="text-4xl font-extrabold mb-6 text-center">My Vault</h1>
+
+        <div className="mb-4 flex justify-end">
+          <button
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 transition-colors duration-300"
+            onClick={() => setShowCreateForm(true)}
+          >
+            Create Form
+          </button>
+        </div>
+
+        {showCreateForm && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <h2 className="text-xl font-bold mb-4">Add New Shoe</h2>
+              <form onSubmit={handleFormSubmit}>
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2">Brand</label>
+                  <input
+                    type="text"
+                    name="brand"
+                    value={newShoe.brand}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2">Shoe Name</label>
+                  <input
+                    type="text"
+                    name="model"
+                    value={newShoe.model}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2">Thumbnail URL</label>
+                  <input
+                    type="url"
+                    name="picture"
+                    value={newShoe.picture}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+                >
+                  Add Shoe
+                </button>
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors duration-300 ml-2"
+                  onClick={() => setShowCreateForm(false)}
+                >
+                  Close
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
 
         {vault.length === 0 ? (
           <p className="text-center text-gray-500">No shoes in the vault yet.</p>
