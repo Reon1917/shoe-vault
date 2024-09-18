@@ -1,16 +1,16 @@
 // app/page.js
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
-import Navbar from '../components/Navbar';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
-import axios from 'axios';
+import { useRouter } from "next/navigation";
+import Navbar from "../components/Navbar";
+import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
+import axios from "axios";
 
 export default function Home() {
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = useState("");
   const [sneakers, setSneakers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,10 +21,10 @@ export default function Home() {
   useEffect(() => {
     const fetchVault = async () => {
       try {
-        const response = await axios.get('/api/vault');
+        const response = await axios.get("/api/vault");
         setVault(response.data);
       } catch (err) {
-        console.error('Error fetching vault:', err);
+        console.error("Error fetching vault:", err);
       }
     };
 
@@ -64,39 +64,55 @@ export default function Home() {
         thumbnail: shoe.thumbnail,
         // Use the MongoDB _id for referencing
       };
-  
-      const response = await fetch('/api/vault', {
-        method: 'POST',
+
+      const response = await fetch("/api/vault", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(shoeData),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        setVaultErrors((prevErrors) => ({ ...prevErrors, [shoe.styleID]: null }));
+        setVaultErrors((prevErrors) => ({
+          ...prevErrors,
+          [shoe.styleID]: null,
+        }));
         setVault((prevVault) => [...prevVault, data]);
       } else if (response.status === 409) {
-        setVaultErrors((prevErrors) => ({ ...prevErrors, [shoe.styleID]: "Shoe is already saved" }));
+        setVaultErrors((prevErrors) => ({
+          ...prevErrors,
+          [shoe.styleID]: "Shoe is already saved",
+        }));
       } else {
-        console.error('Server error:', data.error);
-        setVaultErrors((prevErrors) => ({ ...prevErrors, [shoe.styleID]: `Error: ${data.error}` }));
+        console.error("Server error:", data.error);
+        setVaultErrors((prevErrors) => ({
+          ...prevErrors,
+          [shoe.styleID]: `Error: ${data.error}`,
+        }));
       }
     } catch (err) {
-      console.error('Client-side error:', err);
-      setVaultErrors((prevErrors) => ({ ...prevErrors, [shoe.styleID]: `An error occurred: ${err.message}` }));
+      console.error("Client-side error:", err);
+      setVaultErrors((prevErrors) => ({
+        ...prevErrors,
+        [shoe.styleID]: `An error occurred: ${err.message}`,
+      }));
     }
   };
-  
-  
+
   return (
     <div>
       <Navbar />
       <div className="container mx-auto p-6 max-w-4xl dark:bg-gray-900 dark:text-white">
-        <h1 className="text-4xl font-extrabold mb-6 text-center">Sneaker Search</h1>
-        <form onSubmit={handleSearch} className="flex flex-col items-center mb-6">
+        <h1 className="text-4xl font-extrabold mb-6 text-center">
+          Sneaker Search
+        </h1>
+        <form
+          onSubmit={handleSearch}
+          className="flex flex-col items-center mb-6"
+        >
           <input
             type="text"
             value={keyword}
@@ -104,13 +120,16 @@ export default function Home() {
             placeholder="Search for sneakers..."
             className="w-full md:w-1/2 p-2 mb-4 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white"
           />
-          <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+          >
             Search
           </button>
         </form>
-        
+
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
             <CircularProgress />
           </Box>
         ) : (
@@ -120,10 +139,10 @@ export default function Home() {
                 key={sneaker.styleID}
                 elevation={3}
                 sx={{
-                  padding: '20px',
-                  backgroundColor: 'white',
-                  '&:hover': {
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  padding: "20px",
+                  backgroundColor: "white",
+                  "&:hover": {
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
                   },
                 }}
               >
@@ -140,11 +159,11 @@ export default function Home() {
                     color="primary"
                     onClick={() => handleShoeClick(sneaker.styleID)}
                     sx={{
-                      padding: { xs: '8px 16px', sm: '10px 20px' },
-                      fontSize: { xs: '14px', sm: '16px' },
-                      backgroundColor: '#1976d2',
-                      '&:hover': {
-                        backgroundColor: 'darkblue',
+                      padding: { xs: "8px 16px", sm: "10px 20px" },
+                      fontSize: { xs: "14px", sm: "16px" },
+                      backgroundColor: "#1976d2",
+                      "&:hover": {
+                        backgroundColor: "darkblue",
                       },
                     }}
                   >
@@ -155,14 +174,14 @@ export default function Home() {
                     color="success"
                     onClick={() => addToVault(sneaker)}
                     sx={{
-                      padding: { xs: '8px 16px', sm: '10px 20px' },
-                      fontSize: { xs: '14px', sm: '16px' },
-                      '&:hover': {
-                        backgroundColor: 'darkgreen',
+                      padding: { xs: "8px 16px", sm: "10px 20px" },
+                      fontSize: { xs: "14px", sm: "16px" },
+                      "&:hover": {
+                        backgroundColor: "darkgreen",
                       },
-                      transition: 'transform 0.2s',
-                      '&:active': {
-                        transform: 'scale(0.95)',
+                      transition: "transform 0.2s",
+                      "&:active": {
+                        transform: "scale(0.95)",
                       },
                     }}
                   >
@@ -170,7 +189,9 @@ export default function Home() {
                   </Button>
                 </div>
                 {vaultErrors[sneaker.styleID] && (
-                  <p className="text-center text-red-500 mt-2">{vaultErrors[sneaker.styleID]}</p>
+                  <p className="text-center text-red-500 mt-2">
+                    {vaultErrors[sneaker.styleID]}
+                  </p>
                 )}
               </Paper>
             ))}

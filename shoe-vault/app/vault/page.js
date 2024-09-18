@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
 
 export default function Vault() {
   const [vault, setVault] = useState([]);
@@ -11,24 +11,27 @@ export default function Vault() {
   const [showCreateForm, setShowCreateForm] = useState(false); // State for showing the form
   const [selectedShoe, setSelectedShoe] = useState(null);
   const [isAlreadyAdded, setIsAlreadyAdded] = useState(false);
-  
-  // State for new shoe form
+  const generateRandomStyleID = () => {
+    return "style-" + Math.random().toString(36).substr(2, 9);
+  };
+
   const [newShoe, setNewShoe] = useState({
-    brand: '',
-    model: '',
-    picture: ''
+    styleID: "",
+    brand: "",
+    shoeName: "",
+    thumbnail: "", // Changed from thumbnail to imageUrl
   });
 
   // Fetch Vault data
   useEffect(() => {
     const fetchVault = async () => {
       try {
-        const response = await fetch('/api/vault');
+        const response = await fetch("/api/vault");
         if (!response.ok) throw new Error(response.statusText);
         const data = await response.json();
         setVault(data);
       } catch (error) {
-        console.error('Error fetching vault:', error.message);
+        console.error("Error fetching vault:", error.message);
       }
     };
     fetchVault();
@@ -37,12 +40,12 @@ export default function Vault() {
   // Fetch Collections when opening modal
   const fetchCollections = async () => {
     try {
-      const response = await fetch('/api/collections');
+      const response = await fetch("/api/collections");
       if (!response.ok) throw new Error(response.statusText);
       const data = await response.json();
       setCollections(data);
     } catch (error) {
-      console.error('Error fetching collections:', error.message);
+      console.error("Error fetching collections:", error.message);
     }
   };
 
@@ -57,49 +60,66 @@ export default function Vault() {
   // Add Shoe to Collection
   const addToCollection = async (collectionName, styleID) => {
     try {
-      const response = await fetch(`/api/collections/${collectionName}/addShoe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ styleID }),
-      });
+      const response = await fetch(
+        `/api/collections/${collectionName}/addShoe`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ styleID }),
+        }
+      );
 
       if (!response.ok) {
         const { message } = await response.json();
-        if (message === 'Shoe already in collection') setIsAlreadyAdded(true);
+        if (message === "Shoe already in collection") setIsAlreadyAdded(true);
         throw new Error(response.statusText);
       }
 
-      console.log('Shoe added to collection');
+      console.log("Shoe added to collection");
+
+      // Update the state to ensure the shoe remains in the vault list
+      setVault((prevVault) => {
+        return prevVault.map((shoe) => {
+          if (shoe.styleID === styleID) {
+            return { ...shoe, inCollection: true }; // Mark the shoe as in collection
+          }
+          return shoe;
+        });
+      });
+
       fetchCollections();
     } catch (error) {
-      console.error('Error adding shoe to collection:', error.message);
+      console.error("Error adding shoe to collection:", error.message);
     }
   };
 
   // Remove Shoe from Collection
   const removeFromCollection = async (collectionName, styleID) => {
     try {
-      const response = await fetch(`/api/collections/${collectionName}/addShoe`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ styleID }),
-      });
+      const response = await fetch(
+        `/api/collections/${collectionName}/addShoe`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ styleID }),
+        }
+      );
 
       if (!response.ok) throw new Error(response.statusText);
 
-      console.log('Shoe removed from collection');
+      console.log("Shoe removed from collection");
       fetchCollections();
     } catch (error) {
-      console.error('Error removing shoe from collection:', error.message);
+      console.error("Error removing shoe from collection:", error.message);
     }
   };
 
   // Delete Shoe from Vault
   const handleDeleteFromVault = async (id) => {
     try {
-      const response = await fetch('/api/vault', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/vault", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
 
@@ -112,13 +132,12 @@ export default function Vault() {
           shoes: collection.shoes.filter((shoe) => shoe._id !== id),
         }))
       );
-      console.log('Shoe deleted from vault and updated collections');
+      console.log("Shoe deleted from vault and updated collections");
     } catch (error) {
-      console.error('Error deleting shoe from vault:', error.message);
+      console.error("Error deleting shoe from vault:", error.message);
     }
   };
 
-  // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewShoe((prevState) => ({
@@ -127,14 +146,23 @@ export default function Vault() {
     }));
   };
 
-  // Handle form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    const { styleID, brand, shoeName, thumbnail } = newShoe;
+
+    // Generate a styleID if it is not already set
+    const finalStyleID = styleID || generateRandomStyleID();
+
     try {
-      const response = await fetch('/api/vault', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newShoe),
+      const response = await fetch("/api/vault/addCustomshoe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          styleID: finalStyleID,
+          brand,
+          shoeName,
+          thumbnail,
+        }),
       });
 
       if (!response.ok) throw new Error(response.statusText);
@@ -142,12 +170,11 @@ export default function Vault() {
       const data = await response.json();
       setVault((prevVault) => [...prevVault, data]);
       setShowCreateForm(false);
-      console.log('New shoe added to vault');
+      console.log("New shoe added to vault");
     } catch (error) {
-      console.error('Error adding new shoe to vault:', error.message);
+      console.error("Error adding new shoe to vault:", error.message);
     }
   };
-
   return (
     <div>
       <Navbar />
@@ -159,7 +186,7 @@ export default function Vault() {
             className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 transition-colors duration-300"
             onClick={() => setShowCreateForm(true)}
           >
-            Create Form
+            Add your own shoe
           </button>
         </div>
 
@@ -169,7 +196,9 @@ export default function Vault() {
               <h2 className="text-xl font-bold mb-4">Add New Shoe</h2>
               <form onSubmit={handleFormSubmit}>
                 <div className="mb-4">
-                  <label className="block text-gray-700 dark:text-gray-300 mb-2">Brand</label>
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2">
+                    Brand
+                  </label>
                   <input
                     type="text"
                     name="brand"
@@ -180,22 +209,26 @@ export default function Vault() {
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block text-gray-700 dark:text-gray-300 mb-2">Shoe Name</label>
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2">
+                    Shoe Name
+                  </label>
                   <input
                     type="text"
-                    name="model"
-                    value={newShoe.model}
+                    name="shoeName"
+                    value={newShoe.shoeName}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     required
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block text-gray-700 dark:text-gray-300 mb-2">Thumbnail URL</label>
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2">
+                    Image URL
+                  </label>
                   <input
-                    type="url"
-                    name="picture"
-                    value={newShoe.picture}
+                    type="text"
+                    name="thumbnail" // Ensure this matches the state property name
+                    value={newShoe.thumbnail} // Ensure this matches the state property name
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     required
@@ -220,7 +253,9 @@ export default function Vault() {
         )}
 
         {vault.length === 0 ? (
-          <p className="text-center text-gray-500">No shoes in the vault yet.</p>
+          <p className="text-center text-gray-500">
+            No shoes in the vault yet.
+          </p>
         ) : (
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-4">Shoes in Vault</h2>
@@ -272,15 +307,20 @@ export default function Vault() {
                 );
 
                 return (
-                  <div key={collection._id} className="mb-2 flex justify-between items-center">
+                  <div
+                    key={collection._id}
+                    className="mb-2 flex justify-between items-center"
+                  >
                     <button
-                      className={`cursor-pointer p-2 rounded-full transition-transform duration-300 ${
-                        isShoeInCollection ? 'bg-green-500' : 'bg-gray-300'
-                      }`}
+                      className={`cursor-pointer p-2 rounded-full transition-transform duration-300 ${isShoeInCollection ? "bg-green-500" : "bg-gray-300"
+                        }`}
                       onClick={() =>
                         isShoeInCollection
                           ? setIsAlreadyAdded(true)
-                          : addToCollection(collection.name, selectedShoe.styleID)
+                          : addToCollection(
+                            collection.name,
+                            selectedShoe.styleID
+                          )
                       }
                     >
                       <LibraryAddIcon />
@@ -288,7 +328,12 @@ export default function Vault() {
                     <span>{collection.name}</span>
                     <button
                       className="cursor-pointer p-2 rounded-full transition-transform duration-300 bg-gray-300 hover:bg-red-500"
-                      onClick={() => removeFromCollection(collection.name, selectedShoe.styleID)}
+                      onClick={() =>
+                        removeFromCollection(
+                          collection.name,
+                          selectedShoe.styleID
+                        )
+                      }
                     >
                       <DeleteOutlineIcon />
                     </button>

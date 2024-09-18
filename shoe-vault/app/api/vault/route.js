@@ -1,6 +1,7 @@
 // app/api/vault/route.js
 import dbConnect from '../../../lib/dbConnect';
 import Shoe from '../../../models/shoe';
+import CustomShoe from '../../../models/customshoe'; // Correctly import CustomShoe model
 import { ObjectId } from 'mongodb';
 
 export async function POST(req) {
@@ -25,15 +26,16 @@ export async function POST(req) {
   }
 }
 
-
-
 export async function GET() {
   await dbConnect();
 
   try {
     console.log('Received GET request');
     const shoes = await Shoe.find();
-    return new Response(JSON.stringify(shoes), {
+    const customShoes = await CustomShoe.find(); // Correctly reference CustomShoe model
+    const allShoes = [...shoes, ...customShoes]; // Combine both arrays
+
+    return new Response(JSON.stringify(allShoes), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },  // Ensure JSON content type
     });
