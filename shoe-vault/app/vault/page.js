@@ -227,8 +227,8 @@ export default function Vault() {
                   </label>
                   <input
                     type="text"
-                    name="imageUrl"
-                    value={newShoe.thumbnail}
+                    name="thumbnail" // Ensure this matches the state property name
+                    value={newShoe.thumbnail} // Ensure this matches the state property name
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     required
@@ -312,16 +312,15 @@ export default function Vault() {
                     className="mb-2 flex justify-between items-center"
                   >
                     <button
-                      className={`cursor-pointer p-2 rounded-full transition-transform duration-300 ${
-                        isShoeInCollection ? "bg-green-500" : "bg-gray-300"
-                      }`}
+                      className={`cursor-pointer p-2 rounded-full transition-transform duration-300 ${isShoeInCollection ? "bg-green-500" : "bg-gray-300"
+                        }`}
                       onClick={() =>
                         isShoeInCollection
                           ? setIsAlreadyAdded(true)
                           : addToCollection(
-                              collection.name,
-                              selectedShoe.styleID
-                            )
+                            collection.name,
+                            selectedShoe.styleID
+                          )
                       }
                     >
                       <LibraryAddIcon />

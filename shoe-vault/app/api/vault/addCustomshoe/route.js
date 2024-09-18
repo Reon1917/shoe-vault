@@ -2,20 +2,19 @@ import { NextResponse } from 'next/server';
 import CustomShoe from '@/models/customshoe'; // Ensure the path is correctly cased
 import dbConnect from '@/lib/dbConnect';
 
-// Connect to the database
-dbConnect();
-
 export async function POST(req) {
-  try {
-    const { styleID, brand, shoeName, imageUrl } = await req.json();
+  await dbConnect(); // Ensure the database connection is established
 
-    console.log('Received data:', { styleID, brand, shoeName, imageUrl });
+  try {
+    const { styleID, brand, shoeName, thumbnail } = await req.json();
+
+    console.log('Received data:', { styleID, brand, shoeName, thumbnail });
 
     const newShoe = new CustomShoe({
       styleID,
       brand,
       shoeName,
-      thumbnail // Save the image URL as thumbnail
+      thumbnail, // Save the image URL as thumbnail
     });
 
     await newShoe.save();
@@ -25,5 +24,25 @@ export async function POST(req) {
   } catch (error) {
     console.error('Error saving new shoe:', error);
     return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
+  }
+}
+
+export async function GET() {
+  await dbConnect(); // Ensure the database connection is established
+
+  try {
+    console.log('Received GET request');
+    const shoes = await CustomShoe.find(); // Fetch custom shoes
+
+    return new NextResponse(JSON.stringify(shoes), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }, // Ensure JSON content type
+    });
+  } catch (error) {
+    console.error('Error in GET /api/vault:', error);
+    return new NextResponse(JSON.stringify({ error: 'Server error', details: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }, // Ensure JSON content type
+    });
   }
 }
