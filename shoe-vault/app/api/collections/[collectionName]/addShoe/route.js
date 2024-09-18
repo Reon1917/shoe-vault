@@ -1,6 +1,7 @@
 import dbConnect from '@/lib/dbConnect';
 import Collection from '@/models/Collection';
 import Shoe from '@/models/shoe';
+import CustomShoe from '@/models/customshoe';
 import { NextResponse } from 'next/server';
 
 export async function GET(req, { params }) {
@@ -32,7 +33,12 @@ export async function POST(req, { params }) {
       return NextResponse.json({ message: 'Collection not found' }, { status: 404 });
     }
 
-    const shoe = await Shoe.findOne({ styleID });
+    // Check both Shoe and CustomShoe collections
+    let shoe = await Shoe.findOne({ styleID });
+    if (!shoe) {
+      shoe = await CustomShoe.findOne({ styleID });
+    }
+
     if (!shoe) {
       return NextResponse.json({ message: 'Shoe not found' }, { status: 404 });
     }
@@ -54,7 +60,7 @@ export async function POST(req, { params }) {
   } catch (error) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
-};
+}
 
 
 export async function DELETE(req, { params }) {
