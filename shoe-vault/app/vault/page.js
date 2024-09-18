@@ -8,9 +8,11 @@ export default function Vault() {
   const [vault, setVault] = useState([]);
   const [collections, setCollections] = useState([]);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false); // State for showing the form
+  const [showCreateForm, setShowCreateForm] = useState(false); 
   const [selectedShoe, setSelectedShoe] = useState(null);
   const [isAlreadyAdded, setIsAlreadyAdded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const generateRandomStyleID = () => {
     return "style-" + Math.random().toString(36).substr(2, 9);
   };
@@ -19,10 +21,9 @@ export default function Vault() {
     styleID: "",
     brand: "",
     shoeName: "",
-    thumbnail: "", // Changed from thumbnail to imageUrl
+    thumbnail: "",
   });
 
-  // Fetch Vault data
   useEffect(() => {
     const fetchVault = async () => {
       try {
@@ -37,7 +38,6 @@ export default function Vault() {
     fetchVault();
   }, []);
 
-  // Fetch Collections when opening modal
   const fetchCollections = async () => {
     try {
       const response = await fetch("/api/collections");
@@ -49,15 +49,13 @@ export default function Vault() {
     }
   };
 
-  // Handle opening the Add to Collection modal
   const openCollectionModal = (shoe) => {
     setSelectedShoe(shoe);
-    setIsAlreadyAdded(false); // Reset the error message state
+    setIsAlreadyAdded(false);
     fetchCollections();
     setShowCollectionModal(true);
   };
 
-  // Add Shoe to Collection
   const addToCollection = async (collectionName, styleID) => {
     try {
       const response = await fetch(
@@ -77,11 +75,10 @@ export default function Vault() {
 
       console.log("Shoe added to collection");
 
-      // Update the state to ensure the shoe remains in the vault list
       setVault((prevVault) => {
         return prevVault.map((shoe) => {
           if (shoe.styleID === styleID) {
-            return { ...shoe, inCollection: true }; // Mark the shoe as in collection
+            return { ...shoe, inCollection: true };
           }
           return shoe;
         });
@@ -93,7 +90,6 @@ export default function Vault() {
     }
   };
 
-  // Remove Shoe from Collection
   const removeFromCollection = async (collectionName, styleID) => {
     try {
       const response = await fetch(
@@ -114,7 +110,6 @@ export default function Vault() {
     }
   };
 
-  // Delete Shoe from Vault
   const handleDeleteFromVault = async (id) => {
     try {
       const response = await fetch("/api/vault", {
@@ -150,7 +145,6 @@ export default function Vault() {
     e.preventDefault();
     const { styleID, brand, shoeName, thumbnail } = newShoe;
 
-    // Generate a styleID if it is not already set
     const finalStyleID = styleID || generateRandomStyleID();
 
     try {
@@ -175,13 +169,38 @@ export default function Vault() {
       console.error("Error adding new shoe to vault:", error.message);
     }
   };
+
+  // Define handleSearchChange function
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredVault = vault.filter((shoe) =>
+    shoe.brand.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div>
       <Navbar />
       <div className="container mx-auto p-6 max-w-4xl dark:bg-gray-900 dark:text-white">
         <h1 className="text-4xl font-extrabold mb-6 text-center">My Vault</h1>
 
-        <div className="mb-4 flex justify-end">
+        <div className="mb-4 flex justify-between">
+          <div className="flex items-center">
+            <input
+              type="text"
+              placeholder="Search by brand"
+              value={searchQuery}
+              onChange={handleSearchChange} // Ensure function is properly referenced
+              className="px-4 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+            <button
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 ml-2"
+              onClick={() => {} /* You can add functionality here if needed */}
+            >
+              Search
+            </button>
+          </div>
           <button
             className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 transition-colors duration-300"
             onClick={() => setShowCreateForm(true)}
@@ -227,8 +246,8 @@ export default function Vault() {
                   </label>
                   <input
                     type="text"
-                    name="thumbnail" // Ensure this matches the state property name
-                    value={newShoe.thumbnail} // Ensure this matches the state property name
+                    name="thumbnail"
+                    value={newShoe.thumbnail}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     required
@@ -252,7 +271,7 @@ export default function Vault() {
           </div>
         )}
 
-        {vault.length === 0 ? (
+        {filteredVault.length === 0 ? (
           <p className="text-center text-gray-500">
             No shoes in the vault yet.
           </p>
@@ -260,7 +279,7 @@ export default function Vault() {
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-4">Shoes in Vault</h2>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {vault.map((shoe) => (
+              {filteredVault.map((shoe) => (
                 <li
                   key={shoe._id}
                   className="p-4 border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 transition hover:scale-105"
