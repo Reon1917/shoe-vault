@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
+import IconButton from "@mui/material/IconButton";  // Import IconButton from Material UI
 
 export default function Vault() {
   const [vault, setVault] = useState([]);
@@ -216,9 +217,10 @@ export default function Vault() {
           </button>
         </div>
 
+        {/* Updated modal to bring to front */}
         {showCreateForm && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96 z-60">
               <h2 className="text-xl font-bold mb-4">Add New Shoe</h2>
               <form onSubmit={handleFormSubmit}>
                 <div className="mb-4">
@@ -299,18 +301,18 @@ export default function Vault() {
                     alt={shoe.shoeName}
                   />
                   <div className="mt-4 flex justify-between">
-                    <button
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+                    <IconButton
+                      color="primary"
                       onClick={() => openCollectionModal(shoe)}
                     >
-                      Add to Collection
-                    </button>
-                    <button
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
+                      <LibraryAddIcon />
+                    </IconButton>
+                    <IconButton
+                      color="error"  // Set Delete Icon to red
                       onClick={() => handleDeleteFromVault(shoe._id)}
                     >
-                      Delete from Vault
-                    </button>
+                      <DeleteOutlineIcon />
+                    </IconButton>
                   </div>
                 </li>
               ))}
@@ -337,9 +339,8 @@ export default function Vault() {
                     key={collection._id}
                     className="mb-2 flex justify-between items-center"
                   >
-                    <button
-                      className={`cursor-pointer p-2 rounded-full transition-transform duration-300 ${isShoeInCollection ? "bg-green-500" : "bg-gray-300"
-                        }`}
+                    <IconButton
+                      color={isShoeInCollection ? "success" : "default"}
                       onClick={() =>
                         isShoeInCollection
                           ? setIsAlreadyAdded(true)
@@ -350,10 +351,10 @@ export default function Vault() {
                       }
                     >
                       <LibraryAddIcon />
-                    </button>
+                    </IconButton>
                     <span>{collection.name}</span>
-                    <button
-                      className="cursor-pointer p-2 rounded-full transition-transform duration-300 bg-gray-300 hover:bg-red-500"
+                    <IconButton
+                      color="error"
                       onClick={() =>
                         removeFromCollection(
                           collection.name,
@@ -362,7 +363,7 @@ export default function Vault() {
                       }
                     >
                       <DeleteOutlineIcon />
-                    </button>
+                    </IconButton>
                   </div>
                 );
               })}
