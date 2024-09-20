@@ -62,9 +62,29 @@ export async function DELETE(req) {
       });
     }
 
-    await Shoe.deleteOne({ _id: new ObjectId(id) });  // Ensure you're deleting based on `_id`
-    return new Response(JSON.stringify({ message: 'Shoe deleted' }), {
-      status: 200,
+    // Try deleting from the Shoe collection first
+    const shoeResult = await Shoe.deleteOne({ _id: new ObjectId(id) });
+    if (shoeResult.deletedCount === 1) {
+      console.log('Shoe deleted from Shoe collection');
+      return new Response(JSON.stringify({ message: 'Shoe deleted from vault' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // If the shoe was not found in the Shoe collection, check CustomShoe collection
+    const customShoeResult = await CustomShoe.deleteOne({ _id: new ObjectId(id) });
+    if (customShoeResult.deletedCount === 1) {
+      console.log('Custom shoe deleted from CustomShoe collection');
+      return new Response(JSON.stringify({ message: 'Custom shoe deleted from vault' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // If neither Shoe nor CustomShoe were found
+    return new Response(JSON.stringify({ error: 'Shoe not found' }), {
+      status: 404,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
