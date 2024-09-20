@@ -8,21 +8,24 @@ export default function Vault() {
   const [vault, setVault] = useState([]);
   const [collections, setCollections] = useState([]);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false); 
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedShoe, setSelectedShoe] = useState(null);
   const [isAlreadyAdded, setIsAlreadyAdded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const generateRandomStyleID = () => {
-    return "style-" + Math.random().toString(36).substr(2, 9);
-  };
-
-  const [newShoe, setNewShoe] = useState({
+  // Define a default empty shoe object
+  const defaultNewShoe = {
     styleID: "",
     brand: "",
     shoeName: "",
     thumbnail: "",
-  });
+  };
+
+  const [newShoe, setNewShoe] = useState(defaultNewShoe);
+
+  const generateRandomStyleID = () => {
+    return "style-" + Math.random().toString(36).substr(2, 9);
+  };
 
   useEffect(() => {
     const fetchVault = async () => {
@@ -110,6 +113,12 @@ export default function Vault() {
     }
   };
 
+  // Reset form when opening "Add your own shoe" modal
+  const openCreateForm = () => {
+    setNewShoe(defaultNewShoe);  // Reset newShoe state
+    setShowCreateForm(true);
+  };
+
   const handleDeleteFromVault = async (id) => {
     try {
       const response = await fetch("/api/vault", {
@@ -170,7 +179,6 @@ export default function Vault() {
     }
   };
 
-  // Define handleSearchChange function
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -191,19 +199,18 @@ export default function Vault() {
               type="text"
               placeholder="Search by brand"
               value={searchQuery}
-              onChange={handleSearchChange} // Ensure function is properly referenced
+              onChange={handleSearchChange}
               className="px-4 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 ml-2"
-              onClick={() => {} /* You can add functionality here if needed */}
             >
               Search
             </button>
           </div>
           <button
             className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 transition-colors duration-300"
-            onClick={() => setShowCreateForm(true)}
+            onClick={openCreateForm}  // Reset and open form
           >
             Add your own shoe
           </button>
