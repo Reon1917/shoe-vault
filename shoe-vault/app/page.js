@@ -1,4 +1,3 @@
-// app/page.js
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -62,7 +61,6 @@ export default function Home() {
         shoeName: shoe.shoeName,
         brand: shoe.brand,
         thumbnail: shoe.thumbnail,
-        // Use the MongoDB _id for referencing
       };
 
       const response = await fetch("/api/vault", {
@@ -120,12 +118,28 @@ export default function Home() {
             placeholder="Search for sneakers..."
             className="w-full md:w-1/2 p-2 mb-4 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white"
           />
-          <button
+          <Button
             type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+            variant="contained"
+            sx={{
+              background: "linear-gradient(90deg, #1976D2 0%, #42A5F5 100%)",
+              color: "#fff",
+              padding: { xs: "6px 12px", sm: "8px 16px" }, // Smaller padding
+              fontSize: { xs: "12px", sm: "14px" }, // Smaller font size
+              borderRadius: "50px",
+              boxShadow: "0 4px 8px rgba(25, 118, 210, 0.2)",
+              "&:hover": {
+                background: "linear-gradient(90deg, #1565C0 0%, #2196F3 100%)",
+                boxShadow: "0 6px 12px rgba(25, 118, 210, 0.3)",
+              },
+              transition: "all 0.3s ease-in-out",
+              "&:active": {
+                transform: "scale(0.95)",
+              },
+            }}
           >
             Search
-          </button>
+          </Button>
         </form>
 
         {loading ? (
@@ -156,14 +170,21 @@ export default function Home() {
                 <div className="flex justify-between mt-4">
                   <Button
                     variant="contained"
-                    color="primary"
                     onClick={() => handleShoeClick(sneaker.styleID)}
                     sx={{
-                      padding: { xs: "8px 16px", sm: "10px 20px" },
-                      fontSize: { xs: "14px", sm: "16px" },
-                      backgroundColor: "#1976d2",
+                      background: "linear-gradient(90deg, #1976D2 0%, #42A5F5 100%)",
+                      color: "#fff",
+                      padding: { xs: "6px 12px", sm: "8px 16px" }, // Smaller padding
+                      fontSize: { xs: "12px", sm: "14px" }, // Smaller font size
+                      boxShadow: "0 4px 8px rgba(25, 118, 210, 0.2)",
                       "&:hover": {
-                        backgroundColor: "darkblue",
+                        background: "linear-gradient(90deg, #1565C0 0%, #2196F3 100%)",
+                        boxShadow: "0 6px 12px rgba(25, 118, 210, 0.3)",
+                      },
+                      borderRadius: "50px",
+                      transition: "all 0.3s ease-in-out",
+                      "&:active": {
+                        transform: "scale(0.95)",
                       },
                     }}
                   >
@@ -171,15 +192,19 @@ export default function Home() {
                   </Button>
                   <Button
                     variant="contained"
-                    color="success"
                     onClick={() => addToVault(sneaker)}
                     sx={{
-                      padding: { xs: "8px 16px", sm: "10px 20px" },
-                      fontSize: { xs: "14px", sm: "16px" },
+                      background: "linear-gradient(90deg, #0288D1 0%, #03A9F4 100%)",
+                      color: "#fff",
+                      padding: { xs: "6px 12px", sm: "8px 16px" }, // Smaller padding
+                      fontSize: { xs: "12px", sm: "14px" }, // Smaller font size
+                      boxShadow: "0 4px 8px rgba(3, 169, 244, 0.2)",
                       "&:hover": {
-                        backgroundColor: "darkgreen",
+                        background: "linear-gradient(90deg, #0277BD 0%, #039BE5 100%)",
+                        boxShadow: "0 6px 12px rgba(3, 169, 244, 0.3)",
                       },
-                      transition: "transform 0.2s",
+                      borderRadius: "50px",
+                      transition: "all 0.3s ease-in-out",
                       "&:active": {
                         transform: "scale(0.95)",
                       },
