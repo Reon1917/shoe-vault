@@ -198,7 +198,7 @@ export default function Vault() {
           <div className="flex items-center">
             <input
               type="text"
-              placeholder="Search by brand"
+              placeholder="Search"
               value={searchQuery}
               onChange={handleSearchChange}
               className="px-4 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"

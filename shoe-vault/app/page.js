@@ -150,75 +150,78 @@ export default function Home() {
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {sneakers.map((sneaker) => (
               <Paper
-                key={sneaker.styleID}
-                elevation={3}
-                sx={{
-                  padding: "20px",
-                  backgroundColor: "white",
-                  "&:hover": {
-                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-                  },
-                }}
-              >
-                <h2 className="text-2xl font-bold mb-2">{sneaker.shoeName}</h2>
-                <p className="text-lg mb-2">{sneaker.brand}</p>
-                <img
-                  className="w-full h-48 object-cover rounded-lg"
-                  src={sneaker.thumbnail}
-                  alt={sneaker.shoeName}
-                />
-                <div className="flex justify-between mt-4">
-                  <Button
-                    variant="contained"
-                    onClick={() => handleShoeClick(sneaker.styleID)}
-                    sx={{
-                      background: "linear-gradient(90deg, #1976D2 0%, #42A5F5 100%)",
-                      color: "#fff",
-                      padding: { xs: "6px 12px", sm: "8px 16px" }, // Smaller padding
-                      fontSize: { xs: "12px", sm: "14px" }, // Smaller font size
-                      boxShadow: "0 4px 8px rgba(25, 118, 210, 0.2)",
-                      "&:hover": {
-                        background: "linear-gradient(90deg, #1565C0 0%, #2196F3 100%)",
-                        boxShadow: "0 6px 12px rgba(25, 118, 210, 0.3)",
-                      },
-                      borderRadius: "50px",
-                      transition: "all 0.3s ease-in-out",
-                      "&:active": {
-                        transform: "scale(0.95)",
-                      },
-                    }}
-                  >
-                    View Details
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={() => addToVault(sneaker)}
-                    sx={{
-                      background: "linear-gradient(90deg, #0288D1 0%, #03A9F4 100%)",
-                      color: "#fff",
-                      padding: { xs: "6px 12px", sm: "8px 16px" }, // Smaller padding
-                      fontSize: { xs: "12px", sm: "14px" }, // Smaller font size
-                      boxShadow: "0 4px 8px rgba(3, 169, 244, 0.2)",
-                      "&:hover": {
-                        background: "linear-gradient(90deg, #0277BD 0%, #039BE5 100%)",
-                        boxShadow: "0 6px 12px rgba(3, 169, 244, 0.3)",
-                      },
-                      borderRadius: "50px",
-                      transition: "all 0.3s ease-in-out",
-                      "&:active": {
-                        transform: "scale(0.95)",
-                      },
-                    }}
-                  >
-                    Add to Vault
-                  </Button>
-                </div>
-                {vaultErrors[sneaker.styleID] && (
-                  <p className="text-center text-red-500 mt-2">
-                    {vaultErrors[sneaker.styleID]}
-                  </p>
-                )}
-              </Paper>
+              key={sneaker.styleID}
+              elevation={3}
+              sx={{
+                display: "flex",
+                padding: "20px",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                backgroundColor: "white",
+                "&:hover": {
+                  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+                },
+              }}
+            >
+              <h2 className="text-2xl font-bold mb-2">{sneaker.shoeName}</h2>
+              <p className="text-lg mb-2">{sneaker.brand}</p>
+              <img
+                className="w-full h-48 object-cover rounded-lg"
+                src={sneaker.thumbnail}
+                alt={sneaker.shoeName}
+              />
+              <div className="flex justify-between mt-4">
+                <Button
+                  variant="contained"
+                  onClick={() => handleShoeClick(sneaker.styleID)}
+                  sx={{
+                    background: "linear-gradient(90deg, #1976D2 0%, #42A5F5 100%)",
+                    color: "#fff",
+                    padding: { xs: "6px 12px", sm: "8px 16px" }, // Smaller padding
+                    fontSize: { xs: "12px", sm: "14px" }, // Smaller font size
+                    boxShadow: "0 4px 8px rgba(25, 118, 210, 0.2)",
+                    "&:hover": {
+                      background: "linear-gradient(90deg, #1565C0 0%, #2196F3 100%)",
+                      boxShadow: "0 6px 12px rgba(25, 118, 210, 0.3)",
+                    },
+                    borderRadius: "50px",
+                    transition: "all 0.3s ease-in-out",
+                    "&:active": {
+                      transform: "scale(0.95)",
+                    },
+                  }}
+                >
+                  View Details
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => addToVault(sneaker)}
+                  sx={{
+                    background: "linear-gradient(90deg, #0288D1 0%, #03A9F4 100%)",
+                    color: "#fff",
+                    padding: { xs: "6px 12px", sm: "8px 16px" }, // Smaller padding
+                    fontSize: { xs: "12px", sm: "14px" }, // Smaller font size
+                    boxShadow: "0 4px 8px rgba(3, 169, 244, 0.2)",
+                    "&:hover": {
+                      background: "linear-gradient(90deg, #0277BD 0%, #039BE5 100%)",
+                      boxShadow: "0 6px 12px rgba(3, 169, 244, 0.3)",
+                    },
+                    borderRadius: "50px",
+                    transition: "all 0.3s ease-in-out",
+                    "&:active": {
+                      transform: "scale(0.95)",
+                    },
+                  }}
+                >
+                  Add to Vault
+                </Button>
+              </div>
+              {vaultErrors[sneaker.styleID] && (
+                <p className="text-center text-red-500 mt-2">
+                  {vaultErrors[sneaker.styleID]}
+                </p>
+              )}
+            </Paper>
             ))}
           </ul>
         )}
