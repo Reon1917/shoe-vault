@@ -6,28 +6,64 @@ export async function GET(req, { params }) {
   await dbConnect();
 
   try {
-    console.log('Received GET request with params:', params); // Log the params object
+    const { collectionName } = params;
 
-    const collectionName = params?.collectionName?.toLowerCase(); // Convert collectionName to lowercase
-    console.log('Extracted collectionName:', collectionName);
-
-    if (!collectionName) {
-      console.error('collectionName is undefined');
-      return NextResponse.json({ message: 'collectionName is required' }, { status: 400 });
-    }
-
-    console.log('Querying database for collection:', collectionName);
-    const collection = await Collection.findOne({ name: { $regex: new RegExp(`^${collectionName}$`, 'i') } });
+    // Ensure that collectionName is fetched case-insensitively using regex
+    const collection = await Collection.findOne({
+      name: { $regex: new RegExp(`^${collectionName}$`, 'i') },
+    });
 
     if (!collection) {
-      console.error(`Collection ${collectionName} not found`);
       return NextResponse.json({ message: 'Collection not found' }, { status: 404 });
     }
 
-    console.log('Fetched collection:', collection);
-    return NextResponse.json(collection.shoes, { status: 200 }); // Return only the shoes array
+    // Return the exact collection name from the database
+    return NextResponse.json({
+      collectionName: collection.name, // Return the name as stored in the database
+      shoes: collection.shoes,
+    }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching collection:', error);
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}
+
+// Handle PATCH request to update collection name
+export async function PATCH(req, { params }) {
+  await dbConnect();
+  
+  const { collectionName } = params; // Get the collection name from the URL
+  const { newCollectionName } = await req.json(); // Get the new collection name from the request body
+
+  try {
+    if (!newCollectionName || newCollectionName.trim() === '') {
+      return NextResponse.json({ message: 'New collection name is required' }, { status: 400 });
+    }
+
+    // Find the collection by the current name (case insensitive)
+    const collection = await Collection.findOne({ name: { $regex: new RegExp(`^${collectionName}$`, 'i') } });
+    
+    if (!collection) {
+      return NextResponse.json({ message: 'Collection not found' }, { status: 404 });
+    }
+
+    // Check if the new name is the same as the old name (ignoring case), if so, update regardless of case
+    if (collection.name.toLowerCase() === newCollectionName.trim().toLowerCase()) {
+      collection.name = newCollectionName.trim();
+    } else {
+      // Ensure no other collection has the same name
+      const existingCollection = await Collection.findOne({ name: { $regex: new RegExp(`^${newCollectionName}$`, 'i') } });
+      if (existingCollection) {
+        return NextResponse.json({ message: 'A collection with this name already exists' }, { status: 400 });
+      }
+      collection.name = newCollectionName.trim();
+    }
+    
+    // Save the updated collection
+    await collection.save();
+
+    return NextResponse.json({ message: 'Collection name updated successfully', collectionName: collection.name }, { status: 200 });
+  } catch (error) {
+    console.error('Error updating collection name:', error);
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
