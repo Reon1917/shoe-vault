@@ -11,11 +11,12 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
+import Image from 'next/image'; // Import Image component from Next.js
 import Link from 'next/link';
 import { useTheme } from '../lib/ThemeContext';  // Import the theme context
 import Brightness4Icon from '@mui/icons-material/Brightness4';  // Icon for dark mode
 import Brightness7Icon from '@mui/icons-material/Brightness7';  // Icon for light mode
+import shoeIcon from './/images/short-shoe.png'; // Import the custom shoe icon
 
 const pages = ['Vault', 'Collections']; // List of pages
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -46,7 +47,9 @@ function ResponsiveAppBar() {
     <AppBar position="static" color={theme === 'dark' ? 'default' : 'primary'}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }}>
+            <Image src={shoeIcon} alt="Shoe Icon" width={40} height={40} />
+          </Box>
           <Typography
             variant="h6"
             noWrap
@@ -62,7 +65,7 @@ function ResponsiveAppBar() {
               textDecoration: 'none',
             }}
           >
-            Shoe Vault
+            Sneaker Vault
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -103,7 +106,9 @@ function ResponsiveAppBar() {
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }}>
+            <Image src={shoeIcon} alt="Shoe Icon" width={30} height={30} />
+          </Box>
           <Typography
             variant="h5"
             noWrap
@@ -120,7 +125,7 @@ function ResponsiveAppBar() {
               textDecoration: 'none',
             }}
           >
-            Shoe Vault
+            Sneaker Vault
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
