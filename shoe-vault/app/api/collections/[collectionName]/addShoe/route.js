@@ -8,8 +8,10 @@ export async function GET(req, { params }) {
   await dbConnect();
 
   try {
-    const { collectionName } = params; // Extract collectionName from the URL params
-    const collection = await Collection.findOne({ name: collectionName });
+    const { collectionName } = params;
+
+    // Query the collection name in a case-insensitive way using regex
+    const collection = await Collection.findOne({ name: { $regex: new RegExp(`^${collectionName}$`, 'i') } });
 
     if (!collection) {
       return NextResponse.json({ message: 'Collection not found' }, { status: 404 });
@@ -21,64 +23,42 @@ export async function GET(req, { params }) {
   }
 }
 
-export async function POST(req, { params }) {
+export async function PATCH(req, { params }) {
   await dbConnect();
 
-  try {
-    const { collectionName } = params;
-    const { styleID } = await req.json();
+  const { collectionName } = params; // Get the collection name from the URL
+  const { newCollectionName } = await req.json(); // Get the new collection name from the request body
 
-    const collection = await Collection.findOne({ name: collectionName });
+  try {
+    if (!newCollectionName || newCollectionName.trim() === '') {
+      return NextResponse.json({ message: 'New collection name is required' }, { status: 400 });
+    }
+
+    // Find the collection by the current name (case insensitive)
+    const collection = await Collection.findOne({ name: { $regex: new RegExp(`^${collectionName}$`, 'i') } });
+    
     if (!collection) {
       return NextResponse.json({ message: 'Collection not found' }, { status: 404 });
     }
 
-    // Check both Shoe and CustomShoe collections
-    let shoe = await Shoe.findOne({ styleID });
-    if (!shoe) {
-      shoe = await CustomShoe.findOne({ styleID });
+    // Check if the new name is the same as the old name (ignoring case)
+    if (collection.name.toLowerCase() === newCollectionName.trim().toLowerCase()) {
+      collection.name = newCollectionName.trim();
+    } else {
+      // Check if another collection with the same name (ignoring case) already exists
+      const existingCollection = await Collection.findOne({ name: { $regex: new RegExp(`^${newCollectionName}$`, 'i') } });
+      if (existingCollection) {
+        return NextResponse.json({ message: 'A collection with this name already exists' }, { status: 400 });
+      }
+      collection.name = newCollectionName.trim();
     }
 
-    if (!shoe) {
-      return NextResponse.json({ message: 'Shoe not found' }, { status: 404 });
-    }
-
-    const isShoeInCollection = collection.shoes.some(s => s.styleID === shoe.styleID);
-    if (isShoeInCollection) {
-      return NextResponse.json({ message: 'Shoe already in collection' }, { status: 400 });
-    }
-
-    collection.shoes.push({
-      styleID: shoe.styleID,
-      shoeName: shoe.shoeName,
-      brand: shoe.brand,
-      thumbnail: shoe.thumbnail,
-    });
-
+    // Save the updated collection name
     await collection.save();
-    return NextResponse.json(collection, { status: 200 });
+
+    return NextResponse.json({ message: 'Collection name updated successfully', collectionName: collection.name }, { status: 200 });
   } catch (error) {
+    console.error('Error updating collection name:', error);
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
-
-
-export async function DELETE(req, { params }) {
-  await dbConnect();
-
-  try {
-    const { collectionName } = params;
-    const { styleID } = await req.json();
-
-    const collection = await Collection.findOne({ name: collectionName });
-    if (!collection) {
-      return NextResponse.json({ message: 'Collection not found' }, { status: 404 });
-    }
-
-    collection.shoes = collection.shoes.filter(shoe => shoe.styleID !== styleID);
-    await collection.save();
-    return NextResponse.json({ message: 'Shoe removed from collection' }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
-  }
-};
