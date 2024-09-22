@@ -12,15 +12,20 @@ import {
   Modal,
   TextField,
   Box,
+  IconButton,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import Navbar from "../../components/Navbar";
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function Collections() {
   const [collections, setCollections] = useState([]);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
   const router = useRouter(); // Initialize router
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingCollectionId, setEditingCollectionId] = useState(null);
+  const [newName, setNewName] = useState("");
 
   // Load collections from the database when the component mounts
   useEffect(() => {
@@ -95,6 +100,39 @@ export default function Collections() {
     }
   };
 
+  // Handle editing a collection name
+  const handleEditClick = (collectionId, currentName) => {
+    setIsEditing(true);
+    setEditingCollectionId(collectionId);
+    setNewName(currentName);
+  };
+
+  const handleSaveClick = async () => {
+    try {
+      const response = await fetch('/api/collections', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ collectionId: editingCollectionId, newName }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update collection');
+      }
+
+      const updatedCollection = await response.json();
+      setCollections(collections.map(collection =>
+        collection._id === editingCollectionId ? updatedCollection : collection
+      ));
+      setIsEditing(false);
+      setEditingCollectionId(null);
+      setNewName("");
+    } catch (error) {
+      console.error('Error updating collection:', error);
+    }
+  };
+
   // Modal style
   const modalStyle = {
     position: "absolute",
@@ -132,57 +170,65 @@ export default function Collections() {
         ) : (
           <Grid container spacing={4}>
             {collections.map((collection) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={collection.name}>
+              <Grid item xs={12} sm={6} md={4} lg={3} key={collection._id}>
                 <Card>
-                  {/* Display the first shoe in the collection as a preview */}
-                  {Array.isArray(collection.shoes) &&
-                  collection.shoes.length > 0 ? (
-                    <CardMedia
-                      component="img"
-                      height="150"
-                      image={
-                        collection.shoes[0]?.thumbnail ||
-                        "https://via.placeholder.com/150"
-                      } // Fallback if thumbnail is null
-                      alt={collection.shoes[0]?.shoeName || "No Shoes"} // Fallback if shoeName is null
-                    />
-                  ) : (
-                    <CardMedia
-                      component="img"
-                      height="150"
-                      image="https://via.placeholder.com/150" // Placeholder image if no shoes exist
-                      alt="No Shoes"
-                    />
-                  )}
+  <CardActions style={{ justifyContent: 'flex-end' }}>
+    <IconButton
+      size="small"
+      color="default"
+      onClick={() => handleEditClick(collection._id, collection.name)}
+    >
+      <EditIcon />
+    </IconButton>
+  </CardActions>
+  {/* Display the first shoe in the collection as a preview */}
+  {Array.isArray(collection.shoes) && collection.shoes.length > 0 ? (
+    <CardMedia
+      component="img"
+      height="150"
+      image={
+        collection.shoes[0]?.thumbnail ||
+        "https://via.placeholder.com/150"
+      } // Fallback if thumbnail is null
+      alt={collection.shoes[0]?.shoeName || "No Shoes"} // Fallback if shoeName is null
+    />
+  ) : (
+    <CardMedia
+      component="img"
+      height="150"
+      image="https://via.placeholder.com/150" // Placeholder image if no shoes exist
+      alt="No Shoes"
+    />
+  )}
 
-                  <CardContent>
-                    <Typography variant="h6" component="div">
-                      {collection.name}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {Array.isArray(collection.shoes)
-                        ? collection.shoes.length
-                        : 0}{" "}
-                      shoes in this collection
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button
-                      size="small"
-                      color="primary"
-                      onClick={() => handleViewCollection(collection.name)}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      size="small"
-                      color="secondary"
-                      onClick={() => handleDeleteCollection(collection.name)}
-                    >
-                      Delete
-                    </Button>
-                  </CardActions>
-                </Card>
+  <CardContent>
+    <Typography variant="h6" component="div">
+      {collection.name}
+    </Typography>
+    <Typography variant="body2" color="textSecondary">
+      {Array.isArray(collection.shoes)
+        ? collection.shoes.length
+        : 0}{" "}
+      shoes in this collection
+    </Typography>
+  </CardContent>
+  <CardActions>
+    <Button
+      size="small"
+      color="primary"
+      onClick={() => handleViewCollection(collection.name)}
+    >
+      View
+    </Button>
+    <Button
+      size="small"
+      color="secondary"
+      onClick={() => handleDeleteCollection(collection.name)}
+    >
+      Delete
+    </Button>
+  </CardActions>
+</Card>
               </Grid>
             ))}
           </Grid>
@@ -225,6 +271,48 @@ export default function Collections() {
             fullWidth
             sx={{ mt: 2 }}
             onClick={() => setShowCollectionModal(false)}
+          >
+            Close
+          </Button>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={isEditing}
+        onClose={() => setIsEditing(false)}
+        aria-labelledby="edit-collection-modal"
+      >
+        <Box sx={modalStyle}>
+          <Typography
+            id="edit-collection-modal"
+            variant="h6"
+            component="h2"
+            align="center"
+          >
+            Edit Collection Name
+          </Typography>
+          <TextField
+            fullWidth
+            label="New Collection Name"
+            variant="outlined"
+            margin="normal"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleSaveClick}
+          >
+            Save
+          </Button>
+          <Button
+            variant="text"
+            color="secondary"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={() => setIsEditing(false)}
           >
             Close
           </Button>
