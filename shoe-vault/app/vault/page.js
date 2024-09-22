@@ -291,28 +291,33 @@ export default function Vault() {
               {filteredVault.map((shoe) => (
                 <li
                   key={shoe._id}
-                  className="p-4 border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 transition hover:scale-105"
+                  className="p-4 border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 transition hover:scale-105 flex flex-col justify-between"
+                  style={{ height: '100%' }} // Ensure the li takes up the full height
                 >
-                  <h3 className="text-xl font-bold mb-2">{shoe.shoeName}</h3>
-                  <p className="text-md mb-2">{shoe.brand}</p>
-                  <img
-                    className="w-full h-48 object-cover rounded-lg"
-                    src={shoe.thumbnail}
-                    alt={shoe.shoeName}
-                  />
-                  <div className="mt-4 flex justify-between">
-                    <IconButton
-                      color="primary"
-                      onClick={() => openCollectionModal(shoe)}
-                    >
-                      <LibraryAddIcon />
-                    </IconButton>
-                    <IconButton
-                      color="error"  // Set Delete Icon to red
-                      onClick={() => handleDeleteFromVault(shoe._id)}
-                    >
-                      <DeleteOutlineIcon />
-                    </IconButton>
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">{shoe.shoeName}</h3>
+                    <p className="text-md mb-2">{shoe.brand}</p>
+                    <img
+                      className="w-full h-48 object-cover rounded-lg"
+                      src={shoe.thumbnail}
+                      alt={shoe.shoeName}
+                    />
+                  </div>
+                  <div>
+                    <div className="mt-4 flex justify-between">
+                      <IconButton
+                        color="primary"
+                        onClick={() => openCollectionModal(shoe)}
+                      >
+                        <LibraryAddIcon />
+                      </IconButton>
+                      <IconButton
+                        color="error"  // Set Delete Icon to red
+                        onClick={() => handleDeleteFromVault(shoe._id)}
+                      >
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </div>
                   </div>
                 </li>
               ))}
