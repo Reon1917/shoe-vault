@@ -38,17 +38,15 @@ Shoe Vault offers a modern solution for sneaker lovers to manage their shoe coll
 
 ## Screenshots
 
-### Home Page
-![Home Page](https://github.com/user-attachments/assets/9287b6df-65f0-49f6-a9a1-79b2e1d4e61a)
-
 ### Sneaker Search Results
-![Sneaker Search Results](https://github.com/user-attachments/assets/edf542d3-e40b-4a5b-a500-3f2175276591)
+![Sneaker Search Result](https://github.com/user-attachments/assets/9cf3f32c-9ae2-4768-be7b-d1987f8c9e22)
 
 ### Vault 
 ![Vault](https://github.com/user-attachments/assets/a59c3ed6-9605-455d-a63a-4a29ddf03a3f)
 
 ### Collection
-![Collection](https://github.com/user-attachments/assets/c8bd4e59-ba42-41c9-af97-16505fd125f6)
+![Collection](https://github.com/user-attachments/assets/4f178f4e-3403-4acd-8936-5396b2e8174f)
+
 
 ## Technologies Used
 
