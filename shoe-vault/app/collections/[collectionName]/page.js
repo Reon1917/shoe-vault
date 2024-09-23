@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Navbar from '../../../components/Navbar';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function CollectionDetail() {
   const params = useParams();  // Get the dynamic route parameters
@@ -28,6 +29,27 @@ export default function CollectionDetail() {
     };
     fetchCollection();
   }, [collectionName]);
+
+  // Function to handle deleting a shoe from the collection
+  const handleDeleteShoe = async (styleID) => {
+    try {
+      const response = await fetch(`/api/collections/${collectionName}/collectionDetails/${styleID}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Update the collection state to remove the deleted shoe
+        setCollection((prevCollection) => ({
+          ...prevCollection,
+          shoes: prevCollection.shoes.filter((shoe) => shoe.styleID !== styleID),
+        }));
+      } else {
+        console.error('Error deleting shoe:', response.statusText);
+      }
+    } catch (err) {
+      console.error('Error deleting shoe:', err);
+    }
+  };
 
   if (!collection) {
     return <div>Collection not found.</div>;
@@ -56,8 +78,8 @@ export default function CollectionDetail() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {Array.isArray(collection.shoes) && collection.shoes.map((shoe) => (
-              <div key={shoe.styleID} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
-                <div className="p-4">
+              <div key={shoe.styleID} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 flex flex-col">
+                <div className="p-4 flex-grow">
                   <h3 className="font-bold text-xl mb-2">{shoe.shoeName}</h3>
                   <p className="text-md mb-2">{shoe.brand}</p>
                   <img
@@ -65,6 +87,15 @@ export default function CollectionDetail() {
                     src={shoe.thumbnail}
                     alt={shoe.shoeName}
                   />
+                </div>
+                {/* Delete Button */}
+                <div className="p-4 flex justify-end">
+                  <button
+                    onClick={() => handleDeleteShoe(shoe.styleID)}
+                    className="text-red-500 hover:text-red-700 transition-colors duration-300"
+                  >
+                    <DeleteIcon />
+                  </button>
                 </div>
               </div>
             ))}

@@ -125,24 +125,42 @@ export default function Vault() {
 
   const handleDeleteFromVault = async (id) => {
     try {
+      // Delete the shoe from the vault
       const response = await fetch("/api/vault", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
-
+  
       if (!response.ok) throw new Error(response.statusText);
-
+  
+      // Remove the shoe from the vault state
       setVault(vault.filter((shoe) => shoe._id !== id));
+  
+      // Fetch all collections
+      const collectionsResponse = await fetch("/api/collections");
+      if (!collectionsResponse.ok) throw new Error(collectionsResponse.statusText);
+      const collectionsData = await collectionsResponse.json();
+  
+      // Iterate through each collection and remove the shoe using removeFromCollection
+      for (const collection of collectionsData) {
+        const shoeInCollection = collection.shoes.some((shoe) => shoe._id === id);
+        if (shoeInCollection) {
+          await removeFromCollection(collection.name, id);
+        }
+      }
+  
+      // Update the collections state
       setCollections((prevCollections) =>
         prevCollections.map((collection) => ({
           ...collection,
           shoes: collection.shoes.filter((shoe) => shoe._id !== id),
         }))
       );
-      console.log("Shoe deleted from vault and updated collections");
+  
+      console.log("Shoe deleted from vault and removed from collections");
     } catch (error) {
-      console.error("Error deleting shoe from vault:", error.message);
+      console.error("Error deleting shoe from vault and collections:", error.message);
     }
   };
 
