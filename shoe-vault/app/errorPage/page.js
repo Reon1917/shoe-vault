@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, IconButton, createTheme, ThemeProvider } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const theme = createTheme({
   palette: {
