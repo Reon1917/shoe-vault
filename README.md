@@ -1,9 +1,9 @@
 # Project 02 : Shoe Vault (CSX4107/ITX4107) Section 543
 
 **Team Members:**  
-- [Lin Myat Phyo (Repo Link: )](#team-members)  
-- [Shin Myat Noe Zin (Repo Link: https://github.com/shinmyatnoezin/shinmyatnoezin.github.io)](#team-members)  
-- [Thae Myat Noe Htut (Repo Link: 6520209)](#team-members) 
+- [Lin Myat Phyo (Repo Link: https://github.com/Reon1917)](#team-members)  
+- [Shin Myat Noe Zin (Repo Link: https://github.com/shinmyatnoezin)](#team-members)  
+- [Thae Myat Noe Htut (Repo Link: https://github.com/MichelleThaeMyat)](#team-members) 
 
 A sneaker search and collection app that allows users to explore and organize their favorite sneakers in a personalized vault. Designed for sneaker enthusiasts, the app features brand-based search, a responsive UI, and both dark and light modes for enhanced user experience.
 
