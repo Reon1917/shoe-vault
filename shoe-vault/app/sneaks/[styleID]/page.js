@@ -6,7 +6,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import Navbar from '../../../components/Navbar';
-import ErrorPage from "@/app/errorPage/page";
 
 export default function SneakerDetail() {
   const [sneaker, setSneaker] = useState(null);
@@ -68,7 +67,7 @@ export default function SneakerDetail() {
     </Box>
   );
 
-  if (error === "404") return <ErrorPage />;
+
 
   if (error) return <Typography color="error" textAlign="center">Error: {error}</Typography>;
 
