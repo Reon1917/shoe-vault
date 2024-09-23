@@ -16,8 +16,6 @@ A sneaker search and collection app that allows users to explore and organize th
 - [Technologies Used](#technologies-used)
 - [Installation](#installation)
 - [Contributing](#contributing)
-- [Future Improvements](#future-improvements)
-- [License](#license)
 
 ## Introduction
 
@@ -32,22 +30,24 @@ Shoe Vault offers a modern solution for sneaker lovers to manage their shoe coll
 
 ## How to Use
 
-1. **Navigate to the app**: Visit [Shoe Vault](https://shoe-vault.vercel.app/).
-2. **Search sneakers**: Enter a brand name in the search bar to see a list of available sneakers.
-3. **Add to Vault**: Click the "Add to Vault" button to store your favorite sneakers.
-4. **View and Manage Vault**: Go to the Vault page to view and remove sneakers from your collection.
-5. **Toggle Dark Mode**: Use the theme switcher to change between light and dark modes.
+1.. **Search sneakers**: Enter a brand name in the search bar to see a list of available sneakers.
+2. **Add to Vault**: Click the "Add to Vault" button to store your favorite sneakers.
+3. **View and Manage Vault**: Go to the Vault page to view and remove sneakers from your collection.
+4. **Toggle Dark Mode**: Use the theme switcher to change between light and dark modes.
 
 ## Screenshots
 
 ### Home Page
-![Home Page](link_to_homepage_screenshot)
+![Home Page](https://github.com/user-attachments/assets/9287b6df-65f0-49f6-a9a1-79b2e1d4e61a)
 
 ### Sneaker Search Results
-![Sneaker Search Results](link_to_search_results_screenshot)
+![Sneaker Search Results](https://github.com/user-attachments/assets/edf542d3-e40b-4a5b-a500-3f2175276591)
 
-### Vault Collection
-![Vault Collection](link_to_vault_collection_screenshot)
+### Vault 
+![Vault](https://github.com/user-attachments/assets/a59c3ed6-9605-455d-a63a-4a29ddf03a3f)
+
+### Collection
+![Collection](https://github.com/user-attachments/assets/c8bd4e59-ba42-41c9-af97-16505fd125f6)
 
 ## Technologies Used
 
