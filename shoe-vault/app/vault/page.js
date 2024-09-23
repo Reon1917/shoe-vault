@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
-import IconButton from "@mui/material/IconButton";  // Import IconButton from Material UI
+import IconButton from "@mui/material/IconButton";
+import { useTheme } from "@/lib/ThemeContext"; // Import useTheme from ThemeContext
 
 export default function Vault() {
   const [vault, setVault] = useState([]);
@@ -13,6 +14,8 @@ export default function Vault() {
   const [selectedShoe, setSelectedShoe] = useState(null);
   const [isAlreadyAdded, setIsAlreadyAdded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { theme } = useTheme(); // Use the useTheme hook
 
   // Define a default empty shoe object
   const defaultNewShoe = {
@@ -306,7 +309,7 @@ export default function Vault() {
                   <div>
                     <div className="mt-4 flex justify-between">
                       <IconButton
-                        color="primary"
+                        color={theme === 'dark' ? 'inherit' : 'primary'} // Change color based on theme
                         onClick={() => openCollectionModal(shoe)}
                       >
                         <LibraryAddIcon />
@@ -345,7 +348,7 @@ export default function Vault() {
                     className="mb-2 flex justify-between items-center"
                   >
                     <IconButton
-                      color={isShoeInCollection ? "success" : "default"}
+                      color={isShoeInCollection ? "success" : theme === 'dark' ? 'inherit' : 'default'} // Change color based on theme
                       onClick={() =>
                         isShoeInCollection
                           ? setIsAlreadyAdded(true)

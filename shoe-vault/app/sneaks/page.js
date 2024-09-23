@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'next/link';
 import { Grid, Card, CardContent, Typography, CardMedia } from '@mui/material';
+import ErrorPage from '../errorPage/page';
 
 export default function SneaksPage() {
   const [sneakers, setSneakers] = useState([]);
@@ -30,6 +31,7 @@ export default function SneaksPage() {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
+  if (error === "404") return <ErrorPage />;
 
   return (
     <div className="container mx-auto p-6 max-w-4xl dark:bg-gray-900 dark:text-white">

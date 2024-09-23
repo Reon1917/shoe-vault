@@ -6,6 +6,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import Navbar from '../../../components/Navbar';
+import ErrorPage from "@/app/errorPage/page";
 
 export default function SneakerDetail() {
   const [sneaker, setSneaker] = useState(null);
@@ -24,6 +25,8 @@ export default function SneakerDetail() {
         const data = await response.json();
         if (response.ok) {
           setSneaker(data);
+        } else if (response.status === 404) {
+          setError("404");
         } else {
           setError(data.error);
         }
@@ -37,16 +40,25 @@ export default function SneakerDetail() {
     fetchSneaker();
   }, [styleID]);
 
-  const addToVault = (shoe) => {
-    const storedVault = JSON.parse(localStorage.getItem("vault")) || [];
-    const isAlreadyInVault = storedVault.some(item => item.styleID === shoe.styleID);
-
-    if (isAlreadyInVault) {
-      setVaultError("It is already saved");
-    } else {
-      storedVault.push(shoe);
-      localStorage.setItem("vault", JSON.stringify(storedVault));
-      setVaultError(null); // Clear any previous error message
+  const addToVault = async (shoe) => {
+    try {
+      const response = await fetch('/api/vault', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ styleID: shoe.styleID, shoeName: shoe.shoeName, brand: shoe.brand, thumbnail: shoe.thumbnail }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        setVaultError(null); // Clear any previous error message
+      } else {
+        setVaultError(data.error);
+      }
+    } catch (err) {
+      setVaultError('An error occurred while adding the shoe to the vault');
     }
   };
 
@@ -55,6 +67,8 @@ export default function SneakerDetail() {
       <CircularProgress />
     </Box>
   );
+
+  if (error === "404") return <ErrorPage />;
 
   if (error) return <Typography color="error" textAlign="center">Error: {error}</Typography>;
 
