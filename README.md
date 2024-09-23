@@ -14,6 +14,7 @@ A sneaker search and collection app that allows users to explore and organize th
 - [How to Use](#how-to-use)
 - [Screenshots](#screenshots)
 - [Technologies Used](#technologies-used)
+- [API](#api)
 - [Installation](#installation)
 - [Contributing](#contributing)
 
@@ -53,8 +54,13 @@ Shoe Vault offers a modern solution for sneaker lovers to manage their shoe coll
 
 - **Frontend**: Next.js, React.js
 - **UI Library**: Material UI
-- **Styling**: CSS, Material-UI for responsive design
+- **Styling**: Tailwind CSS, Material-UI for responsive design
+- **DataBase**: MongoDB
 - **Deployment**: Vercel
+   
+## API
+
+This project uses the [Sneaks API](https://github.com/druv5319/Sneaks-API) to fetch sneaker data, including brand, model, and release information. The API provides comprehensive sneaker information, allowing users to search for shoes by brand and display the latest sneakers.
 
 ## Installation
 
@@ -75,13 +81,13 @@ To run the app locally:
 3. Install dependencies:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 4. Run the development server:
 
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
 5. Open your browser and go to:
