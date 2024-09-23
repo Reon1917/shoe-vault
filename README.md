@@ -31,10 +31,10 @@ Shoe Vault offers a modern solution for sneaker lovers to manage their shoe coll
 
 ## How to Use
 
-1.. **Search sneakers**: Enter a brand name in the search bar to see a list of available sneakers.
-2. **Add to Vault**: Click the "Add to Vault" button to store your favorite sneakers.
-3. **View and Manage Vault**: Go to the Vault page to view and remove sneakers from your collection.
-4. **Toggle Dark Mode**: Use the theme switcher to change between light and dark modes.
+**Search sneakers**: Enter a brand name in the search bar to see a list of available sneakers.
+**Add to Vault**: Click the "Add to Vault" button to store your favorite sneakers.
+**View and Manage Vault**: Go to the Vault page to view and remove sneakers from your collection.
+**Toggle Dark Mode**: Use the theme switcher to change between light and dark modes.
 
 ## Screenshots
 
