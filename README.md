@@ -1,4 +1,4 @@
-# Project 02 : Shoe Vault (CSX4107/ITX4107) Section 543
+# Project 02 : Sneaker Vault (CSX4107/ITX4107) Section 543
 
 **Team Members:**  
 - [Lin Myat Phyo (Repo Link: https://github.com/Reon1917)](#team-members)  
@@ -16,11 +16,11 @@ A sneaker search and collection app that allows users to explore and organize th
 - [Technologies Used](#technologies-used)
 - [API](#api)
 - [Installation](#installation)
-- [Contributing](#contributing)
+
 
 ## Introduction
 
-Shoe Vault offers a modern solution for sneaker lovers to manage their shoe collections. Whether you're searching for your next pair or organizing your vault, this app provides an easy-to-use interface for sneaker management. With dark mode support and brand filtering, it enhances the sneaker discovery and collection process.
+Sneaker Vault offers a modern solution for sneaker lovers to manage their shoe collections. Whether you're searching for your next pair or organizing your vault, this app provides an easy-to-use interface for sneaker management. With dark mode support and brand filtering, it enhances the sneaker discovery and collection process.
 
 ## Features
 
@@ -50,9 +50,9 @@ Shoe Vault offers a modern solution for sneaker lovers to manage their shoe coll
 
 ## Technologies Used
 
-- **Frontend**: Next.js, React.js
+- **Frontend**: React.js
 - **UI Library**: Material UI
-- **Styling**: Tailwind CSS, Material-UI for responsive design
+- **Styling**: Tailwind CSS
 - **DataBase**: MongoDB
 - **Deployment**: Vercel
    
@@ -94,13 +94,5 @@ To run the app locally:
    http://localhost:3000
    ```
 
-## Contributing
 
-If you wish to contribute to the project:
-
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Commit your changes (`git commit -m 'Add feature'`).
-4. Push the branch (`git push origin feature-branch`).
-5. Open a pull request.
 
