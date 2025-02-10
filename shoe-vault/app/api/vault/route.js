@@ -3,8 +3,16 @@ import dbConnect from '../../../lib/dbConnect';
 import Shoe from '../../../models/shoe';
 import CustomShoe from '../../../models/customshoe'; // Correctly import CustomShoe model
 import { ObjectId } from 'mongodb';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(req) {
+  const session = await getServerSession(authOptions);
+  
+  if (!session) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  }
+
   await dbConnect();
 
   try {
@@ -26,7 +34,13 @@ export async function POST(req) {
   }
 }
 
-export async function GET() {
+export async function GET(req) {
+  const session = await getServerSession(authOptions);
+  
+  if (!session) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  }
+
   await dbConnect();
 
   try {
@@ -49,6 +63,12 @@ export async function GET() {
 }
 
 export async function DELETE(req) {
+  const session = await getServerSession(authOptions);
+  
+  if (!session) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  }
+
   await dbConnect();
 
   try {

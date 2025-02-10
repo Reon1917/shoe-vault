@@ -1,31 +1,56 @@
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import Image from 'next/image'; // Import Image component from Next.js
+'use client';
+
+import { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import { useTheme } from '@/lib/ThemeContext';
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  Typography,
+  Menu,
+  Container,
+  Avatar,
+  Tooltip,
+  MenuItem,
+  Button,
+  Divider,
+} from '@mui/material';
+import {
+  Menu as MenuIcon,
+  Brightness4 as DarkIcon,
+  Brightness7 as LightIcon,
+  AccountCircle,
+  CollectionsBookmark,
+  LocalMall,
+  Settings,
+  ExitToApp,
+} from '@mui/icons-material';
 import Link from 'next/link';
-import { useTheme } from '../lib/ThemeContext';  // Import the theme context
-import Brightness4Icon from '@mui/icons-material/Brightness4';  // Icon for dark mode
-import Brightness7Icon from '@mui/icons-material/Brightness7';  // Icon for light mode
-import shoeIcon from './/images/short-shoe.png'; // Import the custom shoe icon
+import { useRouter } from 'next/navigation';
 
-const pages = ['Vault', 'Collections']; // List of pages
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+export default function Navbar() {
+  const { data: session, status } = useSession();
+  const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
 
-function ResponsiveAppBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const { theme, toggleTheme } = useTheme();  // Access the current theme and toggle function
+  // If session is loading, return a loading state
+  if (status === 'loading') {
+    return (
+      <AppBar position="static" sx={{ bgcolor: 'background.paper' }}>
+        <Container maxWidth="xl">
+          <Toolbar disableGutters>
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              Shoe Vault
+            </Typography>
+          </Toolbar>
+        </Container>
+      </AppBar>
+    );
+  }
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -43,35 +68,47 @@ function ResponsiveAppBar() {
     setAnchorElUser(null);
   };
 
+  const handleSignOut = async () => {
+    handleCloseUserMenu();
+    await signOut({ redirect: false });
+    router.push('/');
+  };
+
   return (
-    <AppBar position="static" color={theme === 'dark' ? 'default' : 'primary'}>
+    <AppBar 
+      position="sticky" 
+      elevation={0}
+      sx={{ 
+        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        borderBottom: '1px solid',
+        borderColor: theme === 'light' ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.12)',
+      }}
+    >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }}>
-            <Image src={shoeIcon} alt="Shoe Icon" width={40} height={40} />
-          </Box>
+          {/* Logo - Desktop */}
           <Typography
             variant="h6"
             noWrap
-            component="a"
+            component={Link}
             href="/"
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
               fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
+              color: 'primary.main',
               textDecoration: 'none',
             }}
           >
-            Sneaker Vault
+            SHOE VAULT
           </Typography>
 
+          {/* Mobile Menu */}
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
+              aria-label="menu"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
@@ -93,93 +130,135 @@ function ResponsiveAppBar() {
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{ display: { xs: 'block', md: 'none' } }}
+              sx={{
+                display: { xs: 'block', md: 'none' },
+              }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">
-                    <Link href={`/${page.toLowerCase()}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      {page}
-                    </Link>
-                  </Typography>
-                </MenuItem>
-              ))}
+              <MenuItem onClick={handleCloseNavMenu} component={Link} href="/vault">
+                <LocalMall sx={{ mr: 1 }} /> My Vault
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu} component={Link} href="/collections">
+                <CollectionsBookmark sx={{ mr: 1 }} /> Collections
+              </MenuItem>
             </Menu>
           </Box>
-          <Box sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }}>
-            <Image src={shoeIcon} alt="Shoe Icon" width={30} height={30} />
-          </Box>
+
+          {/* Logo - Mobile */}
           <Typography
-            variant="h5"
+            variant="h6"
             noWrap
-            component="a"
+            component={Link}
             href="/"
             sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
-              fontFamily: 'monospace',
+              display: { xs: 'flex', md: 'none' },
               fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
+              color: 'primary.main',
               textDecoration: 'none',
             }}
           >
-            Sneaker Vault
+            SHOE VAULT
           </Typography>
+
+          {/* Desktop Menu */}
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-                className={`hover:bg-gray-200 dark:text-black dark:hover:bg-gray-700 transition-colors duration-300`}
-              >
-                <Link href={`/${page.toLowerCase()}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  {page}
-                </Link>
-              </Button>
-            ))}
+            <Button
+              component={Link}
+              href="/vault"
+              onClick={handleCloseNavMenu}
+              sx={{ my: 2, display: 'flex', alignItems: 'center' }}
+            >
+              <LocalMall sx={{ mr: 1 }} /> My Vault
+            </Button>
+            <Button
+              component={Link}
+              href="/collections"
+              onClick={handleCloseNavMenu}
+              sx={{ my: 2, display: 'flex', alignItems: 'center' }}
+            >
+              <CollectionsBookmark sx={{ mr: 1 }} /> Collections
+            </Button>
           </Box>
 
-          {/* Theme Toggle Button */}
-          <IconButton sx={{ ml: 1 }} onClick={toggleTheme} color="inherit">
-            {theme === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          {/* Theme Toggle */}
+          <IconButton onClick={toggleTheme} sx={{ mr: 2 }}>
+            {theme === 'dark' ? <LightIcon /> : <DarkIcon />}
           </IconButton>
 
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+          {/* User Menu */}
+          {session ? (
+            <Box sx={{ flexShrink: 0 }}>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar
+                    alt={session.user.name}
+                    src={session.user.image}
+                    sx={{
+                      bgcolor: 'primary.main',
+                      width: 40,
+                      height: 40,
+                    }}
+                  >
+                    {session.user.name?.[0]}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: '45px' }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                <MenuItem onClick={handleCloseUserMenu} component={Link} href="/profile">
+                  <AccountCircle sx={{ mr: 1 }} /> Profile
                 </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+                <MenuItem onClick={handleCloseUserMenu} component={Link} href="/settings">
+                  <Settings sx={{ mr: 1 }} /> Settings
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleSignOut}>
+                  <ExitToApp sx={{ mr: 1 }} /> Sign Out
+                </MenuItem>
+              </Menu>
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                component={Link}
+                href="/auth/signin"
+                variant="outlined"
+                sx={{
+                  borderRadius: '20px',
+                  px: 2,
+                }}
+              >
+                Sign In
+              </Button>
+              <Button
+                component={Link}
+                href="/auth/signup"
+                variant="contained"
+                sx={{
+                  borderRadius: '20px',
+                  px: 2,
+                }}
+              >
+                Sign Up
+              </Button>
+            </Box>
+          )}
         </Toolbar>
       </Container>
     </AppBar>
   );
 }
-
-export default ResponsiveAppBar;

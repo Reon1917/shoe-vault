@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from '../lib/ThemeContext'; 
+import AuthProvider from '@/components/AuthProvider';
 import Head from "next/head"; 
 
 // Load custom fonts
@@ -18,7 +19,7 @@ const geistMono = localFont({
 
 export const metadata = {
   title: 'Shoe Vault',
-  description: 'Your personal shoe collection',
+  description: 'Your personal shoe collection manager',
 };
 
 // RootLayout function with theme support
@@ -32,7 +33,9 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>  {/* Wrap the app in ThemeProvider for dark/light mode */}
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

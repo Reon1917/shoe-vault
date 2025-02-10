@@ -4,16 +4,21 @@ const collectionSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
+  },
+  description: {
+    type: String,
   },
   shoes: [
     {
-      styleID: String,
-      shoeName: String,
-      brand: String,
-      thumbnail: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shoe',
     },
   ],
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 }, {
   timestamps: true,  // Automatically manage createdAt and updatedAt fields
 });
